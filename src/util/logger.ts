@@ -42,12 +42,12 @@ const consoleFormat = winston.format.combine(
 const transports = [
   new winston.transports.Console({ format: consoleFormat }),
   new winston.transports.File({
-    filename: "../logs/error.log",
+    filename: "../../logs/error.log",
     level: "error",
     format: fileFormat,
   }),
   new winston.transports.File({
-    filename: "../logs/app.log",
+    filename: "../../logs/app.log",
     format: fileFormat,
   }),
 ];
