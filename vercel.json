@@ -3,14 +3,14 @@
   "name": "PWBackend",
   "builds": [
     {
-      "src": "./src/app.ts",
+      "src": "src/app.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "./src/(.*)",
-      "dest": "./src/app.ts"
+      "src": "/(.*)",
+      "dest": "src/app.ts"
     }
   ]
 }
