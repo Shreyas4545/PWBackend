@@ -5,16 +5,20 @@ import express from "express";
 import httpContext from "express-http-context";
 import { connectDB } from "./config/db";
 import notFound from "./errors/notFound";
-import { generateRequestId, logRequest, logResponse } from "./middlewares/commonMiddleware";
+import {
+  generateRequestId,
+  logRequest,
+  logResponse,
+} from "./middlewares/commonMiddleware";
 import errorHandlerMiddleware from "./middlewares/errorHandler";
 import router from "./routes";
 
 const corsOptions: cors.CorsOptions = {
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    // allowedHeaders: ["Content-Type", "Accept"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  // allowedHeaders: ["Content-Type", "Accept"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
 // Load environment variables
@@ -38,19 +42,25 @@ app.use(cors(corsOptions));
 app.options("*", cors);
 
 declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            user: {
-                userId: string;
-                role: string;
-            };
-        }
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user: {
+        userId: string;
+        role: string;
+      };
     }
+  }
 }
 
 // Set HTTP context
 app.use(httpContext.middleware);
+app.get("/", async (req, res) => {
+  return res.status(200).json({
+    sucess: true,
+    message: "Success boss",
+  });
+});
 app.use(generateRequestId);
 
 // Log all the requests and response.
