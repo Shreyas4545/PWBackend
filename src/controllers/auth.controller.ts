@@ -203,10 +203,9 @@ export const getUsers: RequestHandler = bigPromise(
       users = await User.find(obj);
     } catch (err) {
       console.log(err);
-      return next(createCustomError("You're not registered in our app", 400));
+      return next(createCustomError("Internal Server Error", 501));
     }
 
-    console.log(sendSuccessApiResponse("Users", users));
     return res.status(200).send(sendSuccessApiResponse("Users", users));
   }
 );

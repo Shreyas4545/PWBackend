@@ -14,7 +14,7 @@ class successApiResponse {
 
 const sendSuccessApiResponse = (
   message: string,
-  data: Record<string, any>,
+  data: Record<string, any> | any,
   statusCode: number = 200
 ) => {
   const newApiResponse = new successApiResponse(message, statusCode);

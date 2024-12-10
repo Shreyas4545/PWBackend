@@ -6,6 +6,18 @@ const courseSchema = new mongoose.Schema({
     required: [true, "Please provide a title"],
     maxlength: [40, "title should be under 40 characters."],
   },
+  courseId: {
+    type: String,
+    required: [true, "Please provide a course id"],
+  },
+  status: {
+    type: String,
+    default: "ACTIVE",
+  },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },
   subTitle: {
     type: String,
     required: [true, "Please provide a sub title"],

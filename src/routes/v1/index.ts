@@ -2,6 +2,7 @@ import express from "express";
 import { sendSuccessApiResponse } from "../../middlewares/successApiResponse";
 import authRoute from "./auth.route";
 import filesRoute from "./files.route";
+import courseRoute from "./course.route";
 
 const router = express.Router();
 /**
@@ -9,7 +10,7 @@ const router = express.Router();
  */
 
 router.use("/auth", authRoute);
-// router.use("/course",);
+router.use("/course", courseRoute);
 
 router.use("/assets", filesRoute);
 
