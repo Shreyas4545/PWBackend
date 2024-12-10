@@ -1,5 +1,7 @@
 import httpContext from "express-http-context";
 import winston from "winston";
+import path from "path";
+import fs from "fs";
 import { PROD_ENVIRONMENT } from "../constants/constants";
 
 const environment = process.env.NODE_ENV;
@@ -9,10 +11,10 @@ const level = () => {
   return isProd ? "info" : "debug";
 };
 
-const label = (module: any) => {
-  const parts = module.filename.split("/");
-  return parts[parts.length - 2] + "/" + parts.pop();
-};
+const logsDir = path.join(process.cwd(), "logs");
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const defaultFormat = [
   winston.format.splat(),
@@ -42,19 +44,19 @@ const consoleFormat = winston.format.combine(
 const transports = [
   new winston.transports.Console({ format: consoleFormat }),
   new winston.transports.File({
-    filename: "../../logs/error.log",
+    filename: path.join(logsDir, "error.log"),
     level: "error",
     format: fileFormat,
   }),
   new winston.transports.File({
-    filename: "../../logs/app.log",
+    filename: path.join(logsDir, "app.log"),
     format: fileFormat,
   }),
 ];
 
 const exceptionHandlers = [
   new winston.transports.File({
-    filename: "../logs/exceptions.log",
+    filename: path.join(logsDir, "exceptions.log"),
     format: fileFormat,
   }),
 ];
