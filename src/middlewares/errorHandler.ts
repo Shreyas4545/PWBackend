@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { DEV_ENVIRONMENT, PROD_ENVIRONMENT } from "../constants/constants";
 import { customAPIError } from "../errors/customAPIError";
-import logger from "../util/logger";
 
 const isProd = PROD_ENVIRONMENT.includes(process.env.NODE_ENV);
 const isDev = DEV_ENVIRONMENT.includes(process.env.NODE_ENV);
@@ -91,7 +90,7 @@ const errorHandlerMiddleware = (
   }
 
   const logError = `StatusCode: ${err.status.code} | Message: ${err.message} \n${err.stack}`;
-  logger.error(logError);
+  console.log(logError);
 };
 
 export default errorHandlerMiddleware;
