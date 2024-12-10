@@ -13,6 +13,7 @@ interface courseObj {
   instructor: string[];
   language: string;
   subtitleLanguage: string;
+  courseId:string,
   courseDurations: string;
   courseLevels: string;
   featured: boolean;
@@ -35,6 +36,7 @@ export const addCourse: RequestHandler = bigPromise(
     try {
       const {
         instructor,
+        courseId,
         title,
         subTitle,
         category,
@@ -50,6 +52,7 @@ export const addCourse: RequestHandler = bigPromise(
         title: string;
         subTitle: string;
         instructor: string[];
+        courseId: string;
         category: string;
         subCategory: string;
         topic: string;
@@ -68,6 +71,7 @@ export const addCourse: RequestHandler = bigPromise(
         subCategory,
         instructor,
         topic,
+        courseId,
         language,
         subtitleLanguage,
         courseDurations,
