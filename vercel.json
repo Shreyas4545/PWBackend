@@ -12,6 +12,5 @@
       "src": "/(.*)",
       "dest": "src/app.ts"
     }
-  ],
-  "files": ["logs/"]
+  ]
 }

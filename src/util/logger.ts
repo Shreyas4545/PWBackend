@@ -54,7 +54,7 @@ const transports = [
 
 const exceptionHandlers = [
   new winston.transports.File({
-    filename: "logs/exceptions.log",
+    filename: "../logs/exceptions.log",
     format: fileFormat,
   }),
 ];
