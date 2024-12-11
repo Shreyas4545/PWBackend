@@ -13,7 +13,7 @@ interface courseObj {
   instructor: string[];
   language: string;
   subtitleLanguage: string;
-  courseId:string,
+  courseId: string;
   courseDurations: string;
   courseLevels: string;
   featured: boolean;
@@ -129,18 +129,21 @@ export const updateCourse: RequestHandler = bigPromise(
       congratulationsMsg,
     };
 
-    await Course.findOneAndUpdate({ _id: id }, toUpdate, { new: true })
-      .exec()
-      .then((data) => {
-        const response = sendSuccessApiResponse(
-          "Course Updated Successfully!",
-          data
-        );
-        res.status(200).send(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      const updatedCourse = await Course.findOneAndUpdate(
+        { _id: id },
+        toUpdate,
+        { new: true }
+      ).exec();
+      const response = sendSuccessApiResponse(
+        "Course Updated Successfully!",
+        updatedCourse
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
   }
 );
 

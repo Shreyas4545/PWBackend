@@ -8,7 +8,7 @@ import {
 const router = express.Router();
 
 router.route("/addCurriculum").post(addCurriculum);
-router.route("/editSections").put(editSection);
-router.route("/editLectures").put(editLecture);
+router.route("/editSections/:id").put(editSection);
+router.route("/editLectures/:id").put(editLecture);
 
 export default router;
