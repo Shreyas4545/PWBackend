@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 const router = express.Router();
 import { uploadImage, uploadVideo } from "../../util/imageUpload";
+import { isLoggedIn } from "../../middlewares/authorization";
 
 router.post(
   "/upload/image",
+  isLoggedIn,
   uploadImage.single("file"),
   (req: Request, res: Response) => {
     try {
@@ -26,6 +28,7 @@ router.post(
 
 router.post(
   "/upload/video",
+  isLoggedIn,
   uploadVideo.single("file"),
   (req: Request, res: Response) => {
     try {

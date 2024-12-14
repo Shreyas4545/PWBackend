@@ -33,6 +33,8 @@ interface courseUpdateObj {
 
 export const addCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.user);
+
     try {
       const {
         instructor,
@@ -43,7 +45,6 @@ export const addCourse: RequestHandler = bigPromise(
         subCategory,
         topic,
         language,
-        createdBy,
         subtitleLanguage,
         courseDurations,
         featured,
@@ -57,7 +58,6 @@ export const addCourse: RequestHandler = bigPromise(
         subCategory: string;
         topic: string;
         language: string;
-        createdBy: string;
         featured: boolean;
         subtitleLanguage: string;
         courseDurations: string;
@@ -76,7 +76,7 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage,
         courseDurations,
         courseLevels,
-        createdBy,
+        createdBy: req.user._id,
         featured,
       };
 

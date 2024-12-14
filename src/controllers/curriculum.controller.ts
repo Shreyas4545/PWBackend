@@ -21,7 +21,7 @@ export interface lectureObj {
   subject_id: any;
   notes: string;
   description: string;
-  video: string;
+  video: string[];
   file: string;
   captions: string;
   status: string;

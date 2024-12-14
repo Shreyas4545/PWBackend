@@ -16,7 +16,7 @@ const lectureSchema = new mongoose.Schema({
     type: String,
   },
   video: {
-    type: String,
+    type: [String],
   },
   file: {
     type: String,
