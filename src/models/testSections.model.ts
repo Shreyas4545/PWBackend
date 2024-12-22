@@ -11,7 +11,7 @@ const testSectionsSchema = new mongoose.Schema({
   marksPerQuestion: {
     type: Number,
   },
-  testsId: {
+  testId: {
     type: mongoose.Types.ObjectId,
     ref: "tests",
   },

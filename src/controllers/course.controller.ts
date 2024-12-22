@@ -230,11 +230,73 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
           },
         },
         {
+          // Perform a join with the User collection to fetch usernames for instructors
+          $lookup: {
+            from: "user", // Name of the User collection
+            localField: "instructor", // Field in Course with instructor IDs
+            foreignField: "_id", // Field in User matching IDs
+            as: "instructors", // Output array
+          },
+        },
+        {
+          // Perform a join with the User collection to fetch usernames for instructors
+          $lookup: {
+            from: "user",
+            localField: "createdBy",
+            foreignField: "_id", // Field in User matching IDs
+            as: "creator", // Output array
+          },
+        },
+        {
+          $unwind: {
+            path: "$creator",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           // Group data back to the course level with nested subjects and lectures
           $group: {
             _id: "$_id",
             title: { $first: "$title" },
+            createdBy: {
+              $first: {
+                $concat: ["$creator.firstName", " ", "$creator.lastName"],
+              },
+            },
             createdAt: { $first: "$createdAt" },
+            subTitle: { $first: "$subTitle" },
+            category: { $first: "$category" },
+            subCategory: { $first: "$subCategory" },
+            topic: { $first: "$topic" },
+            language: { $first: "$language" },
+            subtitleLanguage: { $first: "$subtitleLanguage" },
+            courseDurations: { $first: "$courseDurations" },
+            courseLevels: { $first: "$courseLevels" },
+            learnings: { $first: "$learnings" },
+            targetAudience: { $first: "$targetAudience" },
+            requirements: { $first: "$requirements" },
+            featured: { $first: "$featured" },
+            courseDescription: { $first: "$courseDescription" },
+            courseThumbnail: { $first: "$courseThumbnail" },
+            courseTrailer: { $first: "$courseTrailer" },
+            congratulationsMsg: { $first: "$congratulationsMsg" },
+            welcomeMsg: { $first: "$welcomeMsg" },
+            courseId: { $first: "$courseId" },
+            instructors: {
+              $push: {
+                $map: {
+                  input: "$instructors",
+                  as: "instructor",
+                  in: {
+                    $concat: [
+                      "$$instructor.firstName",
+                      " ",
+                      "$$instructor.lastName",
+                    ],
+                  }, // Extract only the username field
+                },
+              },
+            },
             subjects: {
               $push: {
                 subjectTitle: "$subjects.title",

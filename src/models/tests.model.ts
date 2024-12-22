@@ -50,6 +50,6 @@ const testsSchema = new mongoose.Schema({
   },
 });
 
-const tests = mongoose.model("testsSchema", testsSchema, "testsschema");
+const Tests = mongoose.model("Tests", testsSchema, "tests");
 
-export default tests;
+export default Tests;
