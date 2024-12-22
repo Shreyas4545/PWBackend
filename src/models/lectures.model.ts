@@ -5,7 +5,7 @@ const lectureSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please provide a title"],
   },
-  subject_id: {
+  subjectId: {
     type: mongoose.Types.ObjectId,
     ref: "Subjects",
   },

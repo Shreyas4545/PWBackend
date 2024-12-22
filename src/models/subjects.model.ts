@@ -5,9 +5,9 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please provide a title"],
   },
-  course_id: {
+  courseId: {
     type: mongoose.Types.ObjectId,
-    ref: "Subjects",
+    ref: "Courses",
   },
   status: {
     type: String,

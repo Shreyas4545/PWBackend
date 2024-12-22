@@ -135,6 +135,7 @@ export const updateCourse: RequestHandler = bigPromise(
         toUpdate,
         { new: true }
       ).exec();
+
       const response = sendSuccessApiResponse(
         "Course Updated Successfully!",
         updatedCourse
@@ -176,7 +177,6 @@ export const getCourseId: RequestHandler = bigPromise(
 
       // Extract the prefix and numeric part from the latest courseId
       const courseId = latestCourse.courseId; // e.g., "AB100"
-      const prefix = courseId?.slice(0, 2); // "AB"
       const numericPart = parseInt(courseId.slice(2)); // 100
 
       // Increment the numeric part by 1
@@ -193,6 +193,74 @@ export const getCourseId: RequestHandler = bigPromise(
       );
       console.log(response);
       return res.status(200).send(response);
+    } catch (error) {
+      console.error("Error generating next courseId:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getCoursesWithSubjectsAndLectures = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data: any[] = await Course.aggregate([
+        {
+          // Lookup subjects for each course
+          $lookup: {
+            from: "subjects", // Name of the subjects collection
+            localField: "_id", // Field in courses to match
+            foreignField: "courseId", // Field in subjects to match
+            as: "subjects", // Output array
+          },
+        },
+        {
+          // Unwind the subjects array to process each subject
+          $unwind: {
+            path: "$subjects",
+            preserveNullAndEmptyArrays: true, // Keep courses without subjects
+          },
+        },
+        {
+          // Lookup lectures for each subject
+          $lookup: {
+            from: "lectures", // Name of the lectures collection
+            localField: "subjects._id", // Field in subjects to match
+            foreignField: "subjectId", // Field in lectures to match
+            as: "subjects.lectures", // Output array
+          },
+        },
+        {
+          // Group data back to the course level with nested subjects and lectures
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            createdAt: { $first: "$createdAt" },
+            subjects: {
+              $push: {
+                subjectTitle: "$subjects.title",
+                lectures: {
+                  $map: {
+                    input: "$subjects.lectures",
+                    as: "lecture",
+                    in: {
+                      lectureTitle: "$$lecture.title",
+                      notes: "$$lecture.notes",
+                      description: "$$lecture.description",
+                      video: "$$lecture.video",
+                      file: "$$lecture.file",
+                      captions: "$$lecture.captions",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      const response = sendSuccessApiResponse("Course get successfully!", data);
+      res.status(200).send(response);
+      return data;
     } catch (error) {
       console.error("Error generating next courseId:", error);
       return next(createCustomError("Internal Server Error", 501));

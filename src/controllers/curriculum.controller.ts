@@ -18,7 +18,7 @@ export interface updateSubjectObj {
 }
 export interface lectureObj {
   title: string;
-  subject_id: any;
+  subjectId: any;
   notes: string;
   description: string;
   video: string[];
@@ -66,7 +66,7 @@ export const addCurriculum: RequestHandler = bigPromise(
         for (let j of i?.lectures) {
           const lectureObjToStore: lectureObj = {
             title: j?.lectureTitle,
-            subject_id: subject?._id,
+            subjectId: subject?._id,
             notes: j?.notes,
             description: j?.description,
             video: j?.video,
@@ -95,7 +95,7 @@ export const addCurriculum: RequestHandler = bigPromise(
   }
 );
 
-export const editSection = bigPromise(
+export const editSection: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string | undefined;
@@ -123,7 +123,7 @@ export const editSection = bigPromise(
   }
 );
 
-export const editLecture = bigPromise(
+export const editLecture: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string | undefined;
