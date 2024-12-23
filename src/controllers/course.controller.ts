@@ -205,46 +205,41 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
     try {
       const data: any[] = await Course.aggregate([
         {
-          // Lookup subjects for each course
           $lookup: {
-            from: "subjects", // Name of the subjects collection
-            localField: "_id", // Field in courses to match
-            foreignField: "courseId", // Field in subjects to match
-            as: "subjects", // Output array
+            from: "subjects",
+            localField: "_id",
+            foreignField: "courseId",
+            as: "subjects",
           },
         },
         {
-          // Unwind the subjects array to process each subject
           $unwind: {
             path: "$subjects",
-            preserveNullAndEmptyArrays: true, // Keep courses without subjects
+            preserveNullAndEmptyArrays: true,
           },
         },
         {
-          // Lookup lectures for each subject
           $lookup: {
-            from: "lectures", // Name of the lectures collection
-            localField: "subjects._id", // Field in subjects to match
-            foreignField: "subjectId", // Field in lectures to match
-            as: "subjects.lectures", // Output array
+            from: "lectures",
+            localField: "subjects._id",
+            foreignField: "subjectId",
+            as: "subjects.lectures",
           },
         },
         {
-          // Perform a join with the User collection to fetch usernames for instructors
           $lookup: {
-            from: "user", // Name of the User collection
-            localField: "instructor", // Field in Course with instructor IDs
-            foreignField: "_id", // Field in User matching IDs
-            as: "instructors", // Output array
+            from: "user",
+            localField: "instructor",
+            foreignField: "_id",
+            as: "instructors",
           },
         },
         {
-          // Perform a join with the User collection to fetch usernames for instructors
           $lookup: {
             from: "user",
             localField: "createdBy",
-            foreignField: "_id", // Field in User matching IDs
-            as: "creator", // Output array
+            foreignField: "_id",
+            as: "creator",
           },
         },
         {
@@ -254,7 +249,6 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
           },
         },
         {
-          // Group data back to the course level with nested subjects and lectures
           $group: {
             _id: "$_id",
             title: { $first: "$title" },

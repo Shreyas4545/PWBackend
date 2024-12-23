@@ -13,6 +13,7 @@ export interface testSeriesObj {
   price: number;
   sortBy: number;
   isEnabled: boolean;
+  createdBy: string;
 }
 
 export interface testsObj {
@@ -58,12 +59,14 @@ export const addTestSeries: RequestHandler = bigPromise(
       price,
       sortBy,
       isEnabled,
+      createdBy,
     }: {
       title: string;
       status: string;
       price: number;
       sortBy: number;
       isEnabled: boolean;
+      createdBy: string;
     } = req.body;
 
     const addObj: testSeriesObj = {
@@ -72,6 +75,7 @@ export const addTestSeries: RequestHandler = bigPromise(
       price,
       sortBy,
       isEnabled,
+      createdBy,
     };
 
     try {
@@ -182,6 +186,102 @@ export const addTests: RequestHandler = bigPromise(
 
 export const getTestSeries: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log("he");
+    try {
+      const data: any[] = await testSeries.aggregate([
+        {
+          $lookup: {
+            from: "tests",
+            localField: "_id",
+            foreignField: "testSeriesId",
+            as: "tests",
+          },
+        },
+        {
+          $unwind: {
+            path: "$tests",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "testsections",
+            localField: "tests._id",
+            foreignField: "testId",
+            as: "tests.sections",
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "creator",
+          },
+        },
+        {
+          $unwind: {
+            path: "$creator",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            createdBy: {
+              $first: {
+                $concat: ["$creator.firstName", " ", "$creator.lastName"],
+              },
+            },
+            createdAt: { $first: "$createdAt" },
+            status: { $first: "$status" },
+            price: { $first: "$price" },
+            sortBy: { $first: "$sortBy" },
+            isEnabled: { $first: "$isEnabled" },
+            tests: {
+              $push: {
+                testTitle: "$tests.title",
+                testDescription: "$tests.testDescription",
+                testStatus: "$tests.testStatus",
+                status: "$tests.status",
+                noOfQuestions: "$tests.noOfQuestions",
+                totalMarks: "$tests.totalMarks",
+                totalDuration: "$tests.totalDuration",
+                sortingOrder: "$tests.sortingOrder",
+                allowPdfMaterialDownload: "$tests.allowPdfMaterialDownload",
+                startDate: "$tests.startDate",
+                endDate: "$tests.endDate",
+                testMaterial: "$tests.testMaterial",
+                createdAt: "$tests.createdAt",
+                testSections: {
+                  $map: {
+                    input: "$tests.sections",
+                    as: "testSection",
+                    in: {
+                      title: "$$testSection.title",
+                      negativeMarking: "$$testSection.negativeMarking",
+                      marksPerQuestion: "$$testSection.marksPerQuestion",
+                      questions: "$$testSection.questions",
+                      isOptional: "$$testSection.isOptional",
+                      isFixedTiming: "$$testSection.isFixedTiming",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      const response = sendSuccessApiResponse(
+        "Test Series get successfully!",
+        data
+      );
+      res.status(200).send(response);
+      return data;
+    } catch (error) {
+      console.error("Error generating next courseId:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
   }
 );
