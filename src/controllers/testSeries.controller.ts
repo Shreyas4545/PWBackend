@@ -5,7 +5,6 @@ import bigPromise from "../middlewares/bigPromise";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
-import test from "node:test";
 
 export interface testSeriesObj {
   title: string;
