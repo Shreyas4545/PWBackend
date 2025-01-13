@@ -20,10 +20,10 @@ export interface lectureObj {
   title: string;
   subjectId: any;
   notes: string;
-  description: string;
+  dpp: string;
   video: string[];
-  file: string;
-  captions: string;
+  test: string;
+  assignment: string;
   status: string;
   createdAt: Date;
 }
@@ -31,10 +31,10 @@ export interface lectureObj {
 export interface updateLectureObj {
   title: string;
   notes: string;
-  description: string;
+  dpp: string;
   video: string;
-  file: string;
-  captions: string;
+  assignment: string;
+  test: string;
   status: string;
 }
 
@@ -68,10 +68,10 @@ export const addCurriculum: RequestHandler = bigPromise(
             title: j?.lectureTitle,
             subjectId: subject?._id,
             notes: j?.notes,
-            description: j?.description,
+            dpp: j?.dpp,
             video: j?.video,
-            file: j?.file,
-            captions: j?.captions,
+            assignment: j?.assignment,
+            test: j?.test,
             status: "ACTIVE",
             createdAt: new Date(),
           };
@@ -131,16 +131,16 @@ export const editLecture: RequestHandler = bigPromise(
       const {
         title,
         status,
-        captions,
-        file,
+        assignment,
+        dpp,
         video,
-        description,
+        test,
         notes,
       }: {
-        captions: string;
-        file: string;
+        dpp: string;
+        test: string;
         video: string;
-        description: string;
+        assignment: string;
         notes: string;
         title: string;
         status: string;
@@ -149,10 +149,10 @@ export const editLecture: RequestHandler = bigPromise(
       const updateObj: updateLectureObj = {
         title,
         status,
-        captions,
-        file,
+        dpp,
+        assignment,
         video,
-        description,
+        test,
         notes,
       };
 

@@ -12,16 +12,16 @@ const lectureSchema = new mongoose.Schema({
   notes: {
     type: String,
   },
-  description: {
+  test: {
     type: String,
   },
   video: {
     type: [String],
   },
-  file: {
+  dpp: {
     type: String,
   },
-  captions: {
+  assignment: {
     type: String,
   },
   status: {
