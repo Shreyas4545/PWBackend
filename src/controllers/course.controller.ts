@@ -3,6 +3,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
+import mongoose from "mongoose";
 
 interface courseObj {
   title: string;
@@ -203,7 +204,26 @@ export const getCourseId: RequestHandler = bigPromise(
 export const getCoursesWithSubjectsAndLectures = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const {
+        id,
+        category,
+        subCategory,
+      }: { id?: string; category?: string; subCategory?: string } = req.query;
+
+      const matchConditions: any = {};
+
+      if (id) matchConditions._id = new mongoose.Types.ObjectId(id);
+      if (category) {
+        matchConditions.category = category;
+      }
+      if (subCategory) {
+        matchConditions.subCategory = subCategory;
+      }
+
       const data: any[] = await Course.aggregate([
+        {
+          $match: matchConditions,
+        },
         {
           $lookup: {
             from: "subjects",

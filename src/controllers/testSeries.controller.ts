@@ -5,6 +5,7 @@ import bigPromise from "../middlewares/bigPromise";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
+import mongoose from "mongoose";
 
 export interface testSeriesObj {
   title: string;
@@ -186,7 +187,16 @@ export const addTests: RequestHandler = bigPromise(
 export const getTestSeries: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { id }: { id?: string } = req.query;
+
+      const matchConditions: any = {};
+
+      if (id) matchConditions._id = new mongoose.Types.ObjectId(id);
+
       const data: any[] = await testSeries.aggregate([
+        {
+          $match: matchConditions,
+        },
         {
           $lookup: {
             from: "tests",
