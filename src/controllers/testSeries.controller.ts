@@ -35,6 +35,7 @@ export interface testsObj {
 
 export interface testSectionObj {
   title: string; // Title of the test section
+  status: string;
   negativeMarking?: boolean; // Optional flag for negative marking
   marksPerQuestion?: number; // Optional marks assigned per question
   testId?: any; // ObjectId as a string referencing the associated test
@@ -160,6 +161,7 @@ export const addTests: RequestHandler = bigPromise(
           testId: newTest?._id,
           questions: i?.questions,
           createdAt: new Date(),
+          status: "ACTIVE",
           isOptional: i?.isOptional,
           isFixedTiming: i.isFixedTiming,
         };

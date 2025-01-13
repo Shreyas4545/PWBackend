@@ -12,6 +12,7 @@ interface courseObj {
   subCategory: string;
   topic: string;
   instructor: string[];
+  status: string;
   language: string;
   subtitleLanguage: string;
   courseId: string;
@@ -19,6 +20,7 @@ interface courseObj {
   courseLevels: string;
   featured: boolean;
   createdBy: string;
+  createdAt: Date;
 }
 
 interface courseUpdateObj {
@@ -79,6 +81,8 @@ export const addCourse: RequestHandler = bigPromise(
         courseLevels,
         createdBy: req.user._id,
         featured,
+        createdAt: new Date(),
+        status: "ACTIVE",
       };
 
       const course = await Course.create(toStore);
