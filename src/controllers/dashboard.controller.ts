@@ -206,15 +206,21 @@ export const getBanners: RequestHandler = bigPromise(
     const {
       id,
       createdBy,
+      type,
     }: {
       id?: string;
       createdBy?: string;
+      type?: string;
     } = req.query;
 
     const getObj: any = {};
 
     if (id) {
       getObj._id = id;
+    }
+
+    if (type) {
+      getObj.type = type;
     }
 
     if (createdBy) {
