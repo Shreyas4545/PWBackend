@@ -4,10 +4,16 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 const expression = { isActive: { $eq: true } };
 
-const userSchema = new mongoose.Schema({
+const studentSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: [true, "Please provide a firstName"],
+    maxlength: [40, "Name should be under 40 characters."],
+    trim: true,
+  },
+  studentId: {
+    type: String,
+    required: [true, "Please provide a student Id"],
     maxlength: [40, "Name should be under 40 characters."],
     trim: true,
   },
@@ -44,13 +50,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["admin", "user"],
-    // required:true,
-    default: "user",
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
+    enum: ["student"],
   },
   isActive: {
     type: Boolean,
@@ -76,13 +76,12 @@ const userSchema = new mongoose.Schema({
   },
   modifiedBy: {
     type: mongoose.Types.ObjectId,
-    // required: true,
     ref: "User",
   },
 });
 
 // encrypt password before save
-userSchema.pre("save", async function (next) {
+studentSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -90,7 +89,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // validate the password with passed on user password
-userSchema.methods.isValidatedPassword = async function (
+studentSchema.methods.isValidatedPassword = async function (
   userSendPassword: string,
   password: string
 ) {
@@ -98,7 +97,7 @@ userSchema.methods.isValidatedPassword = async function (
 };
 
 // create and return jwt token
-userSchema.methods.getJwtToken = function () {
+studentSchema.methods.getJwtToken = function () {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const tokenMap: any = { userId: this._id, role: this.role };
 
@@ -108,7 +107,7 @@ userSchema.methods.getJwtToken = function () {
 };
 
 // generate forget password token (string)
-userSchema.methods.getForgotPasswordToken = function () {
+studentSchema.methods.getForgotPasswordToken = function () {
   // generate a long and random string
   const forgotToken = crypto.randomBytes(20).toString("hex");
 
@@ -124,6 +123,6 @@ userSchema.methods.getForgotPasswordToken = function () {
   return forgotToken;
 };
 
-const User = mongoose.model("User", userSchema, "user");
+const Student = mongoose.model("Student", studentSchema, "students");
 
-export default User;
+export default Student;
