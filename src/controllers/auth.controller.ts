@@ -6,6 +6,7 @@ import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { first, update } from "@types/lodash";
 dotenv.config();
 
 const options = {
@@ -21,6 +22,17 @@ interface signupObject {
   phoneNumber: number;
   gender: string;
   role: string;
+}
+
+interface studentUpdateObj {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  phoneNumber?: number;
+  gender?: string;
+  role?: string;
+  isActive?: boolean;
 }
 
 interface studentSignupObject {
@@ -393,7 +405,72 @@ export const getStudents: RequestHandler = bigPromise(
   }
 );
 
-export const logout = bigPromise(async (req, res, next) => {
+export const updateStudentDetails: RequestHandler = bigPromise(
+  async (req, res, next) => {
+    try {
+      const { id }: { id?: string } = req.params;
+
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        gender,
+        phoneNumber,
+        isActive,
+      }: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        phoneNumber: number;
+        gender: string;
+        isActive: boolean;
+      } = req.body;
+
+      let updateObj: studentUpdateObj = {};
+
+      if (firstName) {
+        updateObj.firstName = firstName;
+      }
+
+      if (lastName) {
+        updateObj.lastName = lastName;
+      }
+      if (email) {
+        updateObj.email = email;
+      }
+      if (password) {
+        updateObj.password = password;
+      }
+      if (gender) {
+        updateObj.gender = gender;
+      }
+      if (phoneNumber) {
+        updateObj.phoneNumber = phoneNumber;
+      }
+      if (isActive) {
+        updateObj.isActive = isActive;
+      }
+
+      const data = await Student.findOneAndUpdate(
+        { _id: id },
+        { $set: updateObj },
+        { new: true }
+      );
+
+      const response = sendSuccessApiResponse(
+        "Student Updated Successfully!",
+        data
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const logout: RequestHandler = bigPromise(async (req, res, next) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
     httpOnly: true,

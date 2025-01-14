@@ -11,6 +11,7 @@ import {
   studentSignup,
   studentLogin,
   getStudents,
+  updateStudentDetails,
 } from "../../controllers/auth.controller";
 
 // import middlwares
@@ -24,5 +25,6 @@ router.route("/studentLogin").post(studentLogin);
 router.route("/logout").get(logout);
 router.route("/getUsers").get(getUsers);
 router.route("/getStudents").get(getStudents);
+router.route("/updateStudentDetails/:id").put(updateStudentDetails);
 
 export default router;

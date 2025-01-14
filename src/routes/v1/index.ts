@@ -5,6 +5,7 @@ import courseRoute from "./course.route";
 import courseCurriculum from "./courseCurriculum.route";
 import testSeriesRoute from "./testSeries.route";
 import coupanRoute from "./referral.route";
+import dashboardRoute from "./dashboard.route";
 
 const router = express.Router();
 /**
@@ -17,6 +18,7 @@ router.use("/curriculum", courseCurriculum);
 router.use("/assets", filesRoute);
 router.use("/testSeries", testSeriesRoute);
 router.use("/coupan", coupanRoute);
+router.use("/dashboard", dashboardRoute);
 
 router.get("/", (req, res) => {
   return res.status(200).send({

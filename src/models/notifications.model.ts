@@ -17,6 +17,10 @@ const notificationSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  createdBy: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 const Notifications = mongoose.model(

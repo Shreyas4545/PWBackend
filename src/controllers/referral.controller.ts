@@ -3,7 +3,6 @@ import bigPromise from "../middlewares/bigPromise";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
-import { stat } from "fs";
 
 export interface coupanCreateObj {
   code: string;
