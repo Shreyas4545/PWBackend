@@ -3,6 +3,8 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
+import { google } from "googleapis";
+import { JWT } from "google-auth-library";
 import mongoose from "mongoose";
 
 interface courseObj {
@@ -33,6 +35,12 @@ interface courseUpdateObj {
   targetAudience: string[];
   requirements: string[];
 }
+
+const jwtClient = new JWT({
+  email: process.env.client_email,
+  key: process.env.private_key,
+  scopes: ["https://www.googleapis.com/auth/calendar"],
+});
 
 export const addCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -346,4 +354,8 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
       return next(createCustomError("Internal Server Error", 501));
     }
   }
+);
+
+export const getGoogleMeetLink: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {}
 );

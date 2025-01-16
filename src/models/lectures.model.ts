@@ -10,19 +10,19 @@ const lectureSchema = new mongoose.Schema({
     ref: "Subjects",
   },
   notes: {
-    type: String,
+    type: [String],
   },
   test: {
-    type: String,
+    type: [String],
   },
   video: {
     type: [String],
   },
   dpp: {
-    type: String,
+    type: [String],
   },
   assignment: {
-    type: String,
+    type: [String],
   },
   status: {
     type: String,
