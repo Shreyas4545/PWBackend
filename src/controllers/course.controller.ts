@@ -23,6 +23,8 @@ interface courseObj {
   featured: boolean;
   createdBy: string;
   createdAt: Date;
+  startDate?: Date;
+  price?: number;
 }
 
 interface courseUpdateObj {
@@ -44,8 +46,6 @@ const jwtClient = new JWT({
 
 export const addCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user);
-
     try {
       const {
         instructor,
@@ -59,6 +59,8 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage,
         courseDurations,
         featured,
+        price,
+        startDate,
         courseLevels,
       }: {
         title: string;
@@ -70,6 +72,8 @@ export const addCourse: RequestHandler = bigPromise(
         topic: string;
         language: string;
         featured: boolean;
+        price?: number;
+        startDate: Date;
         subtitleLanguage: string;
         courseDurations: string;
         courseLevels: string;
@@ -87,6 +91,8 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage,
         courseDurations,
         courseLevels,
+        price,
+        startDate,
         createdBy: req.user._id,
         featured,
         createdAt: new Date(),

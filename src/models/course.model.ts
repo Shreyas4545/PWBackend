@@ -33,6 +33,12 @@ const courseSchema = new mongoose.Schema({
     required: [true, "Please provide a sub category"],
     maxlength: [40, "sub category should be under 40 characters."],
   },
+  price: {
+    type: Number,
+  },
+  startDate: {
+    type: Date,
+  },
   topic: {
     type: String,
     required: [true, "Please provide a topic"],

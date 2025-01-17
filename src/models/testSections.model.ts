@@ -18,6 +18,7 @@ const testSectionsSchema = new mongoose.Schema({
   questions: [
     {
       question: String,
+      type: String,
       options: [
         {
           name: String,

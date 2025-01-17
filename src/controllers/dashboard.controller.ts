@@ -23,6 +23,12 @@ export interface bannerObj {
   createdAt: Date;
 }
 
+export interface bannerUpdateObj {
+  type?: string;
+  file?: string;
+  status?: string;
+}
+
 export const addNotification: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
@@ -201,6 +207,51 @@ export const addBanner: RequestHandler = bigPromise(
   }
 );
 
+export const updateBanner: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      file,
+      type,
+      status,
+    }: {
+      file: string;
+      type: string;
+      status: string;
+    } = req.body;
+
+    const { id }: { id?: string } = req.params;
+    const updateObj: bannerUpdateObj = {};
+
+    if (file) {
+      updateObj.file = file;
+    }
+
+    if (type) {
+      updateObj.type = type;
+    }
+
+    if (status) {
+      updateObj.status = status;
+    }
+    try {
+      const updatedBanner = await Banners.findOneAndUpdate(
+        { _id: id },
+        { $set: updateObj },
+        { new: true }
+      );
+
+      const response = sendSuccessApiResponse(
+        "Banner Updated Successfully!",
+        updatedBanner
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
 export const getBanners: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
@@ -213,7 +264,9 @@ export const getBanners: RequestHandler = bigPromise(
       type?: string;
     } = req.query;
 
-    const getObj: any = {};
+    const getObj: any = {
+      status: "ACTIVE",
+    };
 
     if (id) {
       getObj._id = id;
