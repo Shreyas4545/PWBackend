@@ -13,5 +13,5 @@ router.route("/addCourse").post(isLoggedIn, addCourse);
 router.route("/updateCourse/:id").put(isLoggedIn, updateCourse);
 router.route("/getCourseId").get(isLoggedIn, getCourseId);
 router.route("/getCourses").get(getCoursesWithSubjectsAndLectures);
-router.route("/getGoogleMeetLink").get(getGoogleMeetLink);
+router.route("/getGoogleMeetLink").post(getGoogleMeetLink);
 export default router;

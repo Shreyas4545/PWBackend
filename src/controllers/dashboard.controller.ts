@@ -294,3 +294,7 @@ export const getBanners: RequestHandler = bigPromise(
     }
   }
 );
+
+export const getDashboardData: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {}
+);

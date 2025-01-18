@@ -85,6 +85,9 @@ const courseSchema = new mongoose.Schema({
       type: String,
     },
   ],
+  isPaid: {
+    type: Boolean,
+  },
   createdBy: {
     type: mongoose.Types.ObjectId,
     ref: "User",

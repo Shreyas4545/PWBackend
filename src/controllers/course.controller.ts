@@ -5,7 +5,9 @@ import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import { google } from "googleapis";
 import { JWT } from "google-auth-library";
+import { calendar_v3 } from "googleapis/build/src/apis/calendar";
 import mongoose from "mongoose";
+import LiveClass from "../models/liveClass.model";
 
 interface courseObj {
   title: string;
@@ -27,6 +29,21 @@ interface courseObj {
   price?: number;
 }
 
+export interface ILiveClass {
+  title?: string; // Title of the live class
+  createdAt: Date;
+  courseCategory: string;
+  description?: string; // Description of the live class
+  courseId?: string; // Reference to the Courses collection (MongoDB ObjectId as string)
+  subjectId?: string; // Reference to the Subjects collection (MongoDB ObjectId as string)
+  lectureId?: string | null; // Reference to the Lectures collection, nullable
+  googleMeetLink?: string; // Google Meet link for the live class
+  startTime?: Date; // Start time of the live class
+  endTime?: Date; // End time of the live class
+  createdBy?: string; // Reference to the Users collection (MongoDB ObjectId as string)
+  isActive?: boolean; // Whether the live class is active
+}
+
 interface courseUpdateObj {
   courseThumbnail: string;
   welcomeMsg: string;
@@ -37,12 +54,6 @@ interface courseUpdateObj {
   targetAudience: string[];
   requirements: string[];
 }
-
-const jwtClient = new JWT({
-  email: process.env.client_email,
-  key: process.env.private_key,
-  scopes: ["https://www.googleapis.com/auth/calendar"],
-});
 
 export const addCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -363,5 +374,131 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
 );
 
 export const getGoogleMeetLink: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const jwtClient = new JWT({
+        email: process.env.client_email,
+        key: process.env.private_key.replace(/\\n/g, "\n"),
+        scopes: ["https://www.googleapis.com/auth/calendar"],
+      });
+
+      const tokens = await jwtClient.authorize();
+      const calendar: any = google.calendar({ version: "v3", auth: jwtClient });
+
+      const attendees: calendar_v3.Schema$EventAttendee[] = Array(5) // Example: 150 attendees
+        .fill(null)
+        .map((_, index) => ({ email: `attendee${index + 1}@example.com` }));
+
+      const event: calendar_v3.Schema$Event = {
+        summary: "Team Meeting",
+        location: "Virtual",
+        description: "A meeting for the entire team.",
+        start: {
+          dateTime: "2025-01-18T09:00:00+05:30", // Indian Standard Time (IST)
+          timeZone: "Asia/Kolkata", // Indian Time Zone
+        },
+        end: {
+          dateTime: "2025-01-18T10:00:00+05:30", // Indian Standard Time (IST)
+          timeZone: "Asia/Kolkata", // Indian Time Zone
+        },
+        attendees,
+        conferenceData: {
+          createRequest: {
+            requestId: "uniqueRequestId123", // Ensure this is unique
+            conferenceSolutionKey: { type: "hangoutsMeet" },
+          },
+        },
+      };
+
+      const response: any = await calendar.events.insert({
+        calendarId: "primary",
+        resource: event,
+        conferenceDataVersion: 1,
+      });
+
+      console.log(response);
+
+      const {
+        title,
+        description,
+        courseId,
+        subjectId,
+        lectureId,
+        googleMeetLink,
+        startTime,
+        courseCategory,
+        endTime,
+        createdBy,
+      }: {
+        title: string;
+        description: string;
+        courseId: string;
+        subjectId: string;
+        lectureId?: string | null; // Optional and nullable
+        googleMeetLink: string;
+        startTime: Date;
+        endTime: Date;
+        courseCategory: string;
+        createdBy: string;
+      } = req.body;
+
+      const toStore: ILiveClass = {
+        title,
+        description,
+        courseId,
+        subjectId,
+        lectureId,
+        courseCategory,
+        googleMeetLink,
+        startTime,
+        endTime,
+        createdBy,
+        createdAt: new Date(),
+        isActive: true,
+      };
+
+      const liveClass = await LiveClass.create(toStore);
+
+      const resp = sendSuccessApiResponse(
+        "Google Meet Link Sent Successfully!",
+        response?.data.hangoutLink
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getLiveClasses: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { courseCategory }: { courseCategory?: string } = req.query;
+
+      const obj = {
+        isActive: true,
+        courseCategory: courseCategory,
+      };
+
+      const liveClasses: any = await LiveClass.find(obj).catch((err) => {
+        console.log(err);
+      });
+
+      const resp = sendSuccessApiResponse(
+        "Live Classes Sent Successfully!",
+        liveClasses
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getFreeVideos: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {}
 );
