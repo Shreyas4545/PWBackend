@@ -500,5 +500,94 @@ export const getLiveClasses: RequestHandler = bigPromise(
 );
 
 export const getFreeVideos: RequestHandler = bigPromise(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { category }: { category?: string } = req.query;
+
+      const matchConditions: any = {};
+
+      if (category) {
+        matchConditions.category = category;
+        matchConditions.isPaid = false;
+      }
+
+      const data: any[] = await Course.aggregate([
+        {
+          $match: matchConditions,
+        },
+        {
+          $lookup: {
+            from: "subjects",
+            localField: "_id",
+            foreignField: "courseId",
+            as: "subjects",
+          },
+        },
+        {
+          $unwind: {
+            path: "$subjects",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "lectures",
+            localField: "subjects._id",
+            foreignField: "subjectId",
+            as: "subjects.lectures",
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "instructor",
+            foreignField: "_id",
+            as: "instructors",
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "creator",
+          },
+        },
+        {
+          $unwind: {
+            path: "$creator",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $unwind: {
+            path: "$subjects.lectures",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: null, // No grouping key, we just want a single array of videos
+            videos: { $addToSet: "$subjects.lectures.video" }, // Combine all videos into one array
+          },
+        },
+        {
+          $project: {
+            _id: 0, // Exclude the _id field
+            videos: 1, // Include only the videos array
+          },
+        },
+      ]);
+
+      const response = sendSuccessApiResponse(
+        "Live Videos sent successfully!",
+        data[0]
+      );
+      res.status(200).send(response);
+      return data;
+    } catch (error) {
+      console.error("Error generating next courseId:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
 );
