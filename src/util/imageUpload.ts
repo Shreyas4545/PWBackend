@@ -20,4 +20,9 @@ const videoStorage = new CloudinaryStorage({
 });
 
 export const uploadImage = multer({ storage: imageStorage });
-export const uploadVideo = multer({ storage: videoStorage });
+export const uploadVideo = multer({
+  storage: videoStorage,
+  limits: {
+    fileSize: 1024 * 1024 * 1024, // 1GB (adjust according to your needs)
+  },
+});

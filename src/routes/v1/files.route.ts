@@ -28,7 +28,7 @@ router.post(
 
 router.post(
   "/upload/video",
-  isLoggedIn,
+  // isLoggedIn,
   uploadVideo.single("file"),
   (req: Request, res: Response) => {
     try {
