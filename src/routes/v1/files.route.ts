@@ -5,7 +5,7 @@ import { isLoggedIn } from "../../middlewares/authorization";
 
 router.post(
   "/upload/image",
-  isLoggedIn,
+  // isLoggedIn,
   uploadImage.single("file"),
   (req: Request, res: Response) => {
     try {
