@@ -6,6 +6,7 @@ import courseCurriculum from "./courseCurriculum.route";
 import testSeriesRoute from "./testSeries.route";
 import coupanRoute from "./referral.route";
 import dashboardRoute from "./dashboard.route";
+import PaymentRoute from "./payment.route";
 
 const router = express.Router();
 /**
@@ -19,6 +20,7 @@ router.use("/assets", filesRoute);
 router.use("/testSeries", testSeriesRoute);
 router.use("/coupan", coupanRoute);
 router.use("/dashboard", dashboardRoute);
+router.use("/payment", PaymentRoute);
 
 router.get("/", (req, res) => {
   return res.status(200).send({

@@ -26,6 +26,7 @@ interface courseObj {
   createdBy: string;
   createdAt: Date;
   startDate?: Date;
+  endDate?: Date;
   price?: number;
 }
 
@@ -73,6 +74,7 @@ export const addCourse: RequestHandler = bigPromise(
         price,
         startDate,
         courseLevels,
+        endDate,
       }: {
         title: string;
         subTitle: string;
@@ -85,6 +87,7 @@ export const addCourse: RequestHandler = bigPromise(
         featured: boolean;
         price?: number;
         startDate: Date;
+        endDate: Date;
         subtitleLanguage: string;
         courseDurations: string;
         courseLevels: string;
@@ -106,6 +109,7 @@ export const addCourse: RequestHandler = bigPromise(
         startDate,
         createdBy: req.user._id,
         featured,
+        endDate,
         createdAt: new Date(),
         status: "ACTIVE",
       };

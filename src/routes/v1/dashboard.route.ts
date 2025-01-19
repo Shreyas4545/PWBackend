@@ -5,6 +5,7 @@ import {
   addBanner,
   addNotification,
   getBanners,
+  getDashboardData,
   getNotifications,
   updateBanner,
 } from "../../controllers/dashboard.controller";
@@ -20,5 +21,7 @@ router.route("/addBanner").post(addBanner);
 router.route("/getBanners").get(getBanners);
 
 router.route("/updateBanner/:id").put(updateBanner);
+
+router.route("/DashboardData").get(getDashboardData);
 
 export default router;

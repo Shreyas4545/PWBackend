@@ -39,6 +39,9 @@ const courseSchema = new mongoose.Schema({
   startDate: {
     type: Date,
   },
+  endDate: {
+    type: Date,
+  },
   topic: {
     type: String,
     required: [true, "Please provide a topic"],

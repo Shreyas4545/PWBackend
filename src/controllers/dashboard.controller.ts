@@ -5,7 +5,9 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
-import mongoose from "mongoose";
+import User from "../models/User";
+import Course from "../models/course.model";
+import Payment from "../models/payment.model";
 
 export interface notificationObj {
   message: string;
@@ -296,5 +298,83 @@ export const getBanners: RequestHandler = bigPromise(
 );
 
 export const getDashboardData: RequestHandler = bigPromise(
-  async (req: Request, res: Response, next: NextFunction) => {}
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const students: any = await Student.find({}).catch((err) => {
+        console.log(err);
+      });
+
+      const instructors: any = await User.find({}).catch((err) => {
+        console.log(err);
+      });
+
+      const courses: any = await Course.find({}).catch((err) => {
+        console.log(err);
+      });
+
+      const payment: any = await Payment.aggregate([
+        {
+          $group: {
+            _id: null, // No grouping key, so all documents are aggregated together
+            totalAmount: { $sum: "$amount" }, // Summing the 'amount' field
+          },
+        },
+        {
+          $project: { _id: 0, totalAmount: 1 }, // Exclude `_id` from the output
+        },
+      ]);
+
+      const uniqueCoursesBought = await Payment.aggregate([
+        {
+          $group: {
+            _id: "$category", // Group by the 'category' field
+          },
+        },
+        {
+          $count: "uniqueCategories", // Count the number of unique categories
+        },
+      ]);
+
+      let currDate: any = new Date();
+      const onGoingCourses: any = await Course.find({
+        $or: [
+          { endDate: { $gte: currDate } }, // Include courses where endDate is >= currDate
+          { endDate: { $exists: false } }, // Include courses where endDate is missing
+        ],
+      }).catch((err) => {
+        console.error(err);
+      });
+
+      const endedCourses: any = await Course.find({
+        $or: [
+          { endDate: { $lt: currDate } }, // Include courses where endDate is >= currDate
+          { endDate: { $exists: false } }, // Include courses where endDate is missing
+        ],
+      }).catch((err) => {
+        console.error(err);
+      });
+
+      console.log(payment, uniqueCoursesBought);
+
+      const respData: any = {
+        instructors: instructors?.length,
+        students: students?.length,
+        onlineCourses: courses?.length,
+        payment: payment[0]?.totalAmount,
+        onGoingCourses: onGoingCourses?.length,
+        endedCourses: endedCourses?.length,
+        coursesBought: uniqueCoursesBought?.length,
+      };
+
+      const response = sendSuccessApiResponse(
+        "Banners sent Successfully!",
+        respData
+      );
+
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
 );
