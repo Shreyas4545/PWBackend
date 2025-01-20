@@ -13,6 +13,7 @@ export interface paymentObj {
   createdAt: Date;
 }
 
+//AddPayment
 export const addPayment: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
