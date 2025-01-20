@@ -25,6 +25,10 @@ const testSeriesSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     ref: "User",
   },
+  courseId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Course",
+  },
 });
 
 const testSeries = mongoose.model("testSeries", testSeriesSchema, "testseries");

@@ -189,11 +189,13 @@ export const addTests: RequestHandler = bigPromise(
 export const getTestSeries: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id }: { id?: string } = req.query;
+      const { id, title }: { id?: string; title?: string } = req.query;
 
       const matchConditions: any = {};
 
       if (id) matchConditions._id = new mongoose.Types.ObjectId(id);
+
+      if (title) matchConditions.title = title;
 
       const data: any[] = await testSeries.aggregate([
         {
