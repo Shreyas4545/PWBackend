@@ -17,16 +17,16 @@ const testSectionsSchema = new mongoose.Schema({
   },
   questions: [
     {
-      question: String,
-      type: String,
+      question: { type: String, required: true },
+      type: { type: String }, // If 'type' is optional
       options: [
         {
-          name: String,
-          image: String,
+          name: { type: String, required: true },
+          image: { type: String },
         },
       ],
-      image: String,
-      correctAns: String,
+      image: { type: String },
+      correctAns: { type: String, required: true },
     },
   ],
   isOptional: {

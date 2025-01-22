@@ -94,6 +94,14 @@ export const addTestSeries: RequestHandler = bigPromise(
   }
 );
 
+function Parse(str: any) {
+  try {
+    return JSON.parse(str);
+  } catch (err) {
+    return str;
+  }
+}
+
 export const addTests: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
@@ -167,7 +175,8 @@ export const addTests: RequestHandler = bigPromise(
         };
 
         try {
-          await testSections.create(sectionObj);
+          const newSection = await testSections.create(sectionObj);
+          sectionData.push(newSection);
         } catch (err) {
           console.log(err);
           return next(createCustomError("Internal Server Error", 501));
