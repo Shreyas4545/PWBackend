@@ -6,8 +6,7 @@ const notificationSchema = new mongoose.Schema({
     required: [true, "Please provide a message"],
   },
   to: {
-    type: mongoose.Types.ObjectId,
-    ref: "User",
+    type: String,
   },
   status: {
     type: String,
@@ -16,6 +15,10 @@ const notificationSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: new Date(),
+  },
+  courseId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Course",
   },
   createdBy: {
     type: mongoose.Types.ObjectId,

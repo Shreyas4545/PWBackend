@@ -8,6 +8,7 @@ import { createCustomError } from "../errors/customAPIError";
 import User from "../models/User";
 import Course from "../models/course.model";
 import Payment from "../models/payment.model";
+import mongoose from "mongoose";
 
 export interface notificationObj {
   message: string;
@@ -15,6 +16,7 @@ export interface notificationObj {
   status: string;
   createdBy: string;
   createdAt: Date;
+  courseId: string;
 }
 
 export interface bannerObj {
@@ -37,10 +39,12 @@ export const addNotification: RequestHandler = bigPromise(
       message,
       to,
       createdBy,
+      courseId,
     }: {
       message: string;
       to: string;
       createdBy: string;
+      courseId: string;
     } = req.body;
 
     const addObj: notificationObj = {
@@ -49,6 +53,7 @@ export const addNotification: RequestHandler = bigPromise(
       status: "ACTIVE",
       createdAt: new Date(),
       createdBy: createdBy,
+      courseId: courseId,
     };
 
     try {
@@ -69,99 +74,50 @@ export const addNotification: RequestHandler = bigPromise(
 export const getNotifications: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {
-        to,
-        whom,
-      }: {
-        to?: string;
-        whom?: string;
-      } = req.query;
+      const { studentId }: { studentId?: string } = req.query;
 
       const getObj: any = {
         status: "ACTIVE",
+        studentId: new mongoose.Types.ObjectId(studentId),
       };
-      let notifications: any;
-      if (to) getObj.to = to;
-      if (whom == "Student") {
-        notifications = await Notifications.aggregate([
-          {
-            $lookup: {
-              from: "students",
-              localField: "to",
-              foreignField: "_id",
-              as: "notiData",
-            },
-          },
-          {
-            $lookup: {
-              from: "user",
-              localField: "createdBy",
-              foreignField: "_id",
-              as: "creator",
-            },
-          },
-          {
-            $match: getObj,
-          },
-          {
-            $unwind: "$notiData",
-          },
-          {
-            $unwind: "$creator",
-          },
-          {
-            $project: {
-              createdBy: {
-                $concat: ["$creator.firstName", " ", "$creator.lastName"],
-              },
-              message: 1,
-              to: {
-                $concat: ["$notiData.firstName", " ", "$notiData.lastName"],
-              },
-            },
-          },
-        ]);
-      } else if (whom == "Staff") {
-        notifications = await Notifications.aggregate([
-          {
-            $lookup: {
-              from: "user",
-              localField: "to",
-              foreignField: "_id",
-              as: "notiData",
-            },
-          },
-          {
-            $lookup: {
-              from: "user",
-              localField: "createdBy",
-              foreignField: "_id",
-              as: "creator",
-            },
-          },
-          {
-            $match: getObj,
-          },
-          {
-            $unwind: "$notiData",
-          },
-          {
-            $unwind: "$creator",
-          },
-          {
-            $project: {
-              createdBy: {
-                $concat: ["$creator.firstName", " ", "$creator.lastName"],
-              },
-              message: 1,
-              to: {
-                $concat: ["$notiData.firstName", " ", "$notiData.lastName"],
-              },
-            },
-          },
-        ]);
-      }
 
+      let notifications: any = [];
+
+      const unpaidNotifications: any = await Notifications.find({
+        status: "ACTIVE",
+        to: "UNPAID",
+      }).catch((err) => {
+        console.log(err);
+      });
+
+      const paidNotifications = await Payment.aggregate([
+        {
+          $lookup: {
+            from: "notifications",
+            localField: "courseId",
+            foreignField: "courseId",
+            as: "notiData",
+          },
+        },
+        {
+          $unwind: "$notiData",
+        },
+        {
+          $match: { ...getObj, "notiData.to": "PAID" },
+        },
+        {
+          $project: {
+            message: "$notiData.message",
+            to: "$notiData.to",
+            status: "$notiData.status",
+            createdAt: "$notiData.createdAt",
+            courseId: "$notiData.courseId",
+            createdBy: "$notiData.createdBy",
+          },
+        },
+      ]);
+
+      notifications = [...unpaidNotifications, ...paidNotifications];
       const response = sendSuccessApiResponse(
         "Notifications sent Successfully!",
         notifications
