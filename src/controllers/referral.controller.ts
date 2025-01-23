@@ -11,6 +11,7 @@ export interface coupanCreateObj {
   createdBy: string;
   status: string;
   createdAt: Date;
+  courseId: string;
 }
 
 export interface coupanUpdateObj {
@@ -18,6 +19,7 @@ export interface coupanUpdateObj {
   discountPer?: number;
   discountAmount?: number;
   status?: string;
+  courseId?: string;
 }
 
 export const addCoupan: RequestHandler = bigPromise(
@@ -27,11 +29,13 @@ export const addCoupan: RequestHandler = bigPromise(
       discountPer,
       discountAmount,
       createdBy,
+      courseId,
     }: {
       code: string;
       discountPer: number;
       discountAmount: number;
       createdBy: string;
+      courseId: string;
     } = req.body;
 
     const addObj: coupanCreateObj = {
@@ -39,6 +43,7 @@ export const addCoupan: RequestHandler = bigPromise(
       discountPer,
       discountAmount,
       status: "ACTIVE",
+      courseId: courseId,
       createdAt: new Date(),
       createdBy: createdBy,
     };
@@ -100,11 +105,13 @@ export const updateCoupan: RequestHandler = bigPromise(
       status,
       discountPer,
       discountAmount,
+      courseId,
     }: {
       code: string;
       status: string;
       discountPer: number;
       discountAmount: number;
+      courseId: string;
     } = req.body;
 
     const id: string = req.params.id;
@@ -123,6 +130,9 @@ export const updateCoupan: RequestHandler = bigPromise(
     }
     if (discountPer) {
       updateObj.discountPer = discountPer;
+    }
+    if (courseId) {
+      updateObj.courseId = courseId;
     }
 
     try {
