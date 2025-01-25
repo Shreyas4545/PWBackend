@@ -6,7 +6,6 @@ import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { first, update } from "@types/lodash";
 dotenv.config();
 
 const options = {
@@ -18,6 +17,7 @@ interface signupObject {
   firstName: string;
   lastName: string;
   email: string;
+  createdAt: Date;
   password: string;
   phoneNumber: number;
   gender: string;
@@ -39,6 +39,7 @@ interface studentSignupObject {
   firstName: string;
   lastName: string;
   email: string;
+  createdAt: Date;
   password: string;
   phoneNumber: number;
   gender: string;
@@ -69,6 +70,7 @@ export const signup: RequestHandler = bigPromise(
         firstName,
         lastName,
         email,
+        createdAt: new Date(),
         password,
         phoneNumber,
         gender,
@@ -171,6 +173,7 @@ export const studentSignup: RequestHandler = bigPromise(
         firstName,
         lastName,
         email,
+        createdAt: new Date(),
         password,
         phoneNumber,
         studentId,

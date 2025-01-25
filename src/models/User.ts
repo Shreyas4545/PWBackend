@@ -69,6 +69,9 @@ const userSchema = new mongoose.Schema({
     // required: [true, "Please provide phone number"],
     trim: true,
   },
+  createdAt: {
+    type: Date,
+  },
   createdBy: {
     type: mongoose.Types.ObjectId,
     // required: true,

@@ -17,6 +17,9 @@ const studentSchema = new mongoose.Schema({
     maxlength: [40, "Name should be under 40 characters."],
     trim: true,
   },
+  createdAt: {
+    type: Date,
+  },
   lastName: {
     type: String,
     required: [true, "Please provide a lastName"],
