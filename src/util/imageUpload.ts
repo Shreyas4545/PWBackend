@@ -4,7 +4,7 @@ import cloudinary from "../config/cloudinary.cofig";
 
 const imageStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: () => ({
+  params: async () => ({
     folder: "images", // Cloudinary folder for images
     allowed_formats: ["jpg", "jpeg", "png", "pdf"], // File types allowed
   }),
@@ -12,7 +12,7 @@ const imageStorage = new CloudinaryStorage({
 
 const videoStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: () => ({
+  params: async () => ({
     folder: "videos", // Folder name in Cloudinary
     resource_type: "video", // This is essential for videos
     allowed_formats: ["mp4", "avi", "mkv", "mov"], // File types allowed

@@ -1,6 +1,7 @@
 import Notifications from "../models/notifications.model";
 import Banners from "../models/banner.model";
 import Student from "../models/student.model";
+import Queries from "../models/studentQueries.model";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
@@ -9,6 +10,34 @@ import User from "../models/User";
 import Course from "../models/course.model";
 import Payment from "../models/payment.model";
 import mongoose from "mongoose";
+import Reviews from "../models/review.model";
+
+export interface studentQueryObj {
+  description: string;
+  image: string;
+  studentId: string;
+  status: string;
+  createdAt: Date;
+}
+
+export interface reviewObj {
+  name: string;
+  courseId: string;
+  review: string;
+  rating: string;
+  status: string;
+  createdAt: Date;
+  date?: Date;
+}
+
+export interface reviewUpdateObj {
+  name?: string;
+  courseId?: string;
+  review?: string;
+  rating?: string;
+  status?: string;
+  date?: Date;
+}
 
 export interface notificationObj {
   message: string;
@@ -327,6 +356,204 @@ export const getDashboardData: RequestHandler = bigPromise(
         respData
       );
 
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const addStudentQueries: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      description,
+      image,
+      studentId,
+    }: {
+      description: string;
+      image?: string;
+      studentId: string;
+    } = req.body;
+
+    const addObj: studentQueryObj = {
+      description,
+      image,
+      studentId,
+      status: "ACTIVE",
+      createdAt: new Date(),
+    };
+
+    try {
+      const newQuery = await Queries.create(addObj);
+
+      const response = sendSuccessApiResponse(
+        "Query Added Successfully!",
+        newQuery
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getStudentQueries: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const queries = await Queries.aggregate([
+        {
+          $lookup: {
+            from: "students",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentQueries",
+          },
+        },
+        {
+          $unwind: "$studentQueries",
+        },
+        {
+          $project: {
+            studentPhone: "$studentQueries.phoneNumber",
+            name: {
+              $concat: [
+                "$studentQueries.firstName",
+                " ",
+                "$studentQueries.lastName",
+              ],
+            },
+            description: "$description",
+            image: "$image",
+          },
+        },
+      ]).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Queries Sent Successfully!",
+        queries
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const addReviews: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      name,
+      courseId,
+      review,
+      rating,
+      date,
+    }: {
+      name: string;
+      courseId: string;
+      review: string;
+      rating: string;
+      date?: Date;
+    } = req.body;
+
+    const addObj: reviewObj = {
+      name,
+      courseId,
+      review,
+      rating,
+      date,
+      status: "ACTIVE",
+      createdAt: new Date(),
+    };
+
+    try {
+      const newReview = await Reviews.create(addObj);
+
+      const response = sendSuccessApiResponse(
+        "Review Added Successfully!",
+        newReview
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getReviews: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      courseId,
+    }: {
+      courseId?: string;
+    } = req.query;
+
+    try {
+      const reviews = await Reviews.find({ courseId: courseId }).catch(
+        (err) => {
+          console.log(err);
+        }
+      );
+
+      const response = sendSuccessApiResponse(
+        "Reviews Sent Successfully!",
+        reviews
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const updateReviews: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      name,
+      courseId,
+      review,
+      rating,
+      date,
+      status,
+    }: {
+      name?: string;
+      courseId?: string;
+      review?: string;
+      rating?: string;
+      date?: Date;
+      status?: string;
+    } = req.body;
+
+    const id: any = req.params.id;
+
+    const updateObj: reviewUpdateObj = {
+      name,
+      courseId,
+      review,
+      rating,
+      date,
+      status: status,
+    };
+
+    try {
+      const newUpdatedReview = await Reviews.findOneAndUpdate(
+        { _id: id },
+        { $set: updateObj },
+        { new: true }
+      ).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Review Updated Successfully!",
+        newUpdatedReview
+      );
       res.status(200).send(response);
     } catch (err) {
       console.log(err);

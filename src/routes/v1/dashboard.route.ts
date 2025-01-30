@@ -4,15 +4,27 @@ const router = express.Router();
 import {
   addBanner,
   addNotification,
+  addReviews,
+  addStudentQueries,
   getBanners,
   getDashboardData,
   getNotifications,
+  getReviews,
+  getStudentQueries,
   updateBanner,
+  updateReviews,
 } from "../../controllers/dashboard.controller";
 
 import { isLoggedIn } from "../../middlewares/authorization";
 
 router.route("/addNotification").post(addNotification);
+
+router.route("/addQuery").post(addStudentQueries);
+router.route("/getQueries").get(getStudentQueries);
+
+router.route("/addReview").post(addReviews);
+router.route("/getReviews").get(getReviews);
+router.route("/updateReview/:id").put(updateReviews);
 
 router.route("/getNotification").get(getNotifications);
 

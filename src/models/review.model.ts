@@ -1,20 +1,27 @@
 import mongoose from "mongoose";
 
-const querySchema = new mongoose.Schema({
-  description: {
+const reviewSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: [true, "Please provide a description"],
   },
-  image: {
+  review: {
     type: String,
   },
-  studentId: {
+  rating: {
+    type: Number,
+  },
+  courseId: {
     type: mongoose.Types.ObjectId,
-    ref: "Student",
+    ref: "Course",
   },
   status: {
     type: String,
     default: "ACTIVE",
+  },
+  date: {
+    type: Date,
+    default: new Date(),
   },
   createdAt: {
     type: Date,
@@ -22,6 +29,6 @@ const querySchema = new mongoose.Schema({
   },
 });
 
-const Queries = mongoose.model("Queries", querySchema, "queries");
+const Reviews = mongoose.model("Reviews", reviewSchema, "reviews");
 
-export default Queries;
+export default Reviews;
