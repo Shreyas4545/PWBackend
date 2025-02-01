@@ -25,15 +25,13 @@ const LiveClassSchema = new mongoose.Schema({
   },
   googleMeetLink: {
     type: String,
-    required: true, // Store the Google Meet link
+  },
+  thumbNail: {
+    type: String,
   },
   startTime: {
     type: Date,
     required: true, // Start time of the live class
-  },
-  endTime: {
-    type: Date,
-    required: true, // End time of the live class
   },
   createdAt: {
     type: Date,
@@ -47,9 +45,8 @@ const LiveClassSchema = new mongoose.Schema({
   courseCategory: {
     type: String,
   },
-  isActive: {
-    type: Boolean,
-    default: true, // Indicates whether the live class is active or not
+  status: {
+    type: String,
   },
 });
 

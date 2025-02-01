@@ -8,6 +8,7 @@ import { JWT } from "google-auth-library";
 import { calendar_v3 } from "googleapis/build/src/apis/calendar";
 import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
+import Subjects from "../models/subjects.model";
 
 interface courseObj {
   title: string;
@@ -40,9 +41,9 @@ export interface ILiveClass {
   lectureId?: string | null; // Reference to the Lectures collection, nullable
   googleMeetLink?: string; // Google Meet link for the live class
   startTime?: Date; // Start time of the live class
-  endTime?: Date; // End time of the live class
+  thumbNail?:String
   createdBy?: string; // Reference to the Users collection (MongoDB ObjectId as string)
-  isActive?: boolean; // Whether the live class is active
+  status?: string; // Whether the live class is active
 }
 
 interface courseUpdateObj {
@@ -225,7 +226,6 @@ export const getCourseId: RequestHandler = bigPromise(
         "Course Id Sent Successfully!",
         newCourseId
       );
-      console.log(response);
       return res.status(200).send(response);
     } catch (error) {
       console.error("Error generating next courseId:", error);
@@ -377,6 +377,24 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
   }
 );
 
+export const getSubjects = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subjects = await Subjects.find({}).catch((err) => {
+        console.log(err);
+      });
+      const response = sendSuccessApiResponse(
+        "Subjects sent Successfully!",
+        subjects
+      );
+      return res.status(200).send(response);
+    } catch (error) {
+      console.error("Error generating next courseId:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
 export const getGoogleMeetLink: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -384,6 +402,7 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         email: process.env.client_email,
         key: process.env.private_key.replace(/\\n/g, "\n"),
         scopes: ["https://www.googleapis.com/auth/calendar"],
+        subject: "info@oscodesolutionapp.com",
       });
 
       const tokens = await jwtClient.authorize();
@@ -391,7 +410,7 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
 
       const attendees: calendar_v3.Schema$EventAttendee[] = Array(5) // Example: 150 attendees
         .fill(null)
-        .map((_, index) => ({ email: `attendee${index + 1}@example.com` }));
+        .map((_, index) => ({ email: `shreyasjakati66@gmail.com` }));
 
       const event: calendar_v3.Schema$Event = {
         summary: "Team Meeting",
@@ -420,30 +439,28 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         conferenceDataVersion: 1,
       });
 
-      console.log(response);
-
       const {
         title,
         description,
         courseId,
         subjectId,
         lectureId,
-        googleMeetLink,
         startTime,
         courseCategory,
-        endTime,
+        thumbNail
         createdBy,
+        status,
       }: {
         title: string;
         description: string;
         courseId: string;
         subjectId: string;
-        lectureId?: string | null; // Optional and nullable
-        googleMeetLink: string;
+        lectureId?: string | null;
         startTime: Date;
-        endTime: Date;
+        thumbNail:string;
         courseCategory: string;
         createdBy: string;
+        status: string;
       } = req.body;
 
       const toStore: ILiveClass = {
@@ -453,15 +470,15 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         subjectId,
         lectureId,
         courseCategory,
-        googleMeetLink,
+        googleMeetLink: response?.data.hangoutLink,
         startTime,
-        endTime,
+        thumbNail,
         createdBy,
         createdAt: new Date(),
-        isActive: true,
+        status,
       };
 
-      const liveClass = await LiveClass.create(toStore);
+      // const liveClass = await LiveClass.create(toStore);
 
       const resp = sendSuccessApiResponse(
         "Google Meet Link Sent Successfully!",
@@ -479,12 +496,19 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
 export const getLiveClasses: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { courseCategory }: { courseCategory?: string } = req.query;
+      const {
+        courseCategory,
+        status,
+      }: { courseCategory?: string; status?: string } = req.query;
 
-      const obj = {
-        isActive: true,
+      const obj: any = {
         courseCategory: courseCategory,
       };
+      if (status) {
+        obj.status = status;
+      } else {
+        obj["$or"] = [{ status: "UPCOMING" }, { status: "ONGOING" }];
+      }
 
       const liveClasses: any = await LiveClass.find(obj).catch((err) => {
         console.log(err);
@@ -493,6 +517,37 @@ export const getLiveClasses: RequestHandler = bigPromise(
       const resp = sendSuccessApiResponse(
         "Live Classes Sent Successfully!",
         liveClasses
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const updateLiveClass: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id }: { id?: string } = req.params;
+
+      const { status }: { status?: string } = req.query;
+      const obj = {
+        status: status,
+      };
+
+      const updatedLiveClass = await LiveClass.findOneAndUpdate(
+        { _id: id },
+        { $set: obj },
+        { new: true }
+      ).catch((err) => {
+        console.log(err);
+      });
+
+      const resp = sendSuccessApiResponse(
+        "Live Classes Updated Successfully!",
+        updatedLiveClass
       );
 
       return res.status(200).send(resp);
