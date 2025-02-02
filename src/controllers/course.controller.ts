@@ -41,7 +41,7 @@ export interface ILiveClass {
   lectureId?: string | null; // Reference to the Lectures collection, nullable
   googleMeetLink?: string; // Google Meet link for the live class
   startTime?: Date; // Start time of the live class
-  thumbNail?:String
+  thumbNail?: String;
   createdBy?: string; // Reference to the Users collection (MongoDB ObjectId as string)
   status?: string; // Whether the live class is active
 }
@@ -447,7 +447,7 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         lectureId,
         startTime,
         courseCategory,
-        thumbNail
+        thumbNail,
         createdBy,
         status,
       }: {
@@ -457,7 +457,7 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         subjectId: string;
         lectureId?: string | null;
         startTime: Date;
-        thumbNail:string;
+        thumbNail: string;
         courseCategory: string;
         createdBy: string;
         status: string;
