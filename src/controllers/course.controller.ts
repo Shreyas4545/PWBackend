@@ -478,7 +478,7 @@ export const getGoogleMeetLink: RequestHandler = bigPromise(
         status,
       };
 
-      // const liveClass = await LiveClass.create(toStore);
+      const liveClass = await LiveClass.create(toStore);
 
       const resp = sendSuccessApiResponse(
         "Google Meet Link Sent Successfully!",
@@ -501,9 +501,11 @@ export const getLiveClasses: RequestHandler = bigPromise(
         status,
       }: { courseCategory?: string; status?: string } = req.query;
 
-      const obj: any = {
-        courseCategory: courseCategory,
-      };
+      const obj: any = {};
+
+      if (courseCategory) {
+        obj.courseCategory = courseCategory;
+      }
       if (status) {
         obj.status = status;
       } else {
