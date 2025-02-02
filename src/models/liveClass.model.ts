@@ -29,8 +29,12 @@ const LiveClassSchema = new mongoose.Schema({
   thumbNail: {
     type: String,
   },
+  startDate: {
+    type: String,
+    required: true, // Start time of the live class
+  },
   startTime: {
-    type: Date,
+    type: String,
     required: true, // Start time of the live class
   },
   createdAt: {
