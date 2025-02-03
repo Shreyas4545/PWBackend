@@ -371,7 +371,7 @@ export const getUsers: RequestHandler = bigPromise(
     const obj: any = {};
 
     if (userId) {
-      obj.userId = userId;
+      obj._id = userId;
     }
 
     let users: Array<Record<string, any>> = [];
