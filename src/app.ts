@@ -12,6 +12,7 @@ import {
 } from "./middlewares/commonMiddleware";
 import errorHandlerMiddleware from "./middlewares/errorHandler";
 import router from "./routes";
+import { spawn } from "child_process";
 
 const corsOptions: cors.CorsOptions = {
   origin: "*",
@@ -62,6 +63,50 @@ app.get("/", async (req, res) => {
     message: "Success boss",
   });
 });
+
+app.post("/getPdfParsedData", async (req, res) => {
+  const pdfUrl =
+    "https://res.cloudinary.com/dzxtkbwbk/image/upload/v1738696900/images/ds6qsjsshtw8gaqb8amm.pdf"; // Replace with actual PDF URL
+
+  // const {pdfUrl} = req.body;
+  const pythonProcess = spawn("python3", ["pdf_parser.py", pdfUrl]);
+
+  let jsonData = "";
+
+  pythonProcess.stdout.on("data", (data) => {
+    jsonData += data.toString();
+  });
+
+  pythonProcess.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+    return res.status(501).json({
+      success: false,
+      message: `Internal Server Error + ${data}`,
+    });
+  });
+
+  pythonProcess.on("close", (code) => {
+    try {
+      const parsedData = JSON.parse(jsonData);
+      if (parsedData.error) {
+        console.error(`Error: ${parsedData.error}`);
+      } else {
+        return res.status(200).json({
+          success: true,
+          data: parsedData,
+          message: "Sucessfully Parsed pdf",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+      return res.status(501).json({
+        success: false,
+        message: `Internal Server Error + ${error}`,
+      });
+    }
+  });
+});
+
 app.use(generateRequestId);
 
 // Log all the requests and response.
