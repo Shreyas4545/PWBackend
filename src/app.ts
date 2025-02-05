@@ -88,6 +88,7 @@ app.post("/getPdfParsedData", async (req, res) => {
   pythonProcess.on("close", (code) => {
     try {
       const parsedData = JSON.parse(jsonData);
+      console.log(parsedData);
       if (parsedData.error) {
         console.error(`Error: ${parsedData.error}`);
       } else {
