@@ -1,6 +1,9 @@
 {
   "version": 2,
   "name": "PWBackend",
+  "functions": {
+    "api/pdf_parser.py": { "runtime": "python3" }
+  },
   "builds": [
     {
       "src": "src/app.ts",

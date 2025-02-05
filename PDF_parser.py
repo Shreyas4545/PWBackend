@@ -9,7 +9,7 @@ def download_pdf(pdf_url):
     if response.status_code == 200:
         return BytesIO(response.content)
     else:
-        raise Exception(f"Failed to download PDF: {response.status_code}")
+        return json.dumps({"error": f"Failed to download PDF: {response.status_code}"})
 
 def extract_text_from_pdf(pdf_stream):
     text = ""
@@ -21,42 +21,37 @@ def extract_text_from_pdf(pdf_stream):
     return text
 
 def parse_questions(text):
-    # Adjusted regex to capture full correct answer
     question_pattern = re.compile(
         r"(\d+\..*?)\n(a\) .*?)\n(b\) .*?)\n(c\) .*?)\n(d\) .*?)\nAnswer:\s*([a-d]\))",
         re.DOTALL
     )
 
     questions = []
-
     for match in question_pattern.findall(text):
         question_text = match[0].strip()
         options = [{"name": match[i].strip()} for i in range(1, 5)]
-        
-        # Extract correct answer based on the answer letter (a), (b), (c), (d)
-        correct_letter = match[5].strip()  # Example: "c)"
+        correct_letter = match[5].strip()
         correct_ans = next(option["name"] for option in options if option["name"].startswith(correct_letter))
 
         questions.append({
             "question": question_text,
             "options": options,
-            "correctAns": correct_ans  # Full correct answer text
+            "correctAns": correct_ans
         })
 
     return questions
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) != 2:
-        print(json.dumps({"error": "Usage: python pdf_parser.py <PDF_URL>"}))
-        sys.exit(1)
+def handler(event, context):
+    body = json.loads(event["body"])
+    pdf_url = body.get("pdfUrl")
 
-    pdf_url = sys.argv[1]
+    if not pdf_url:
+        return {"statusCode": 400, "body": json.dumps({"error": "Missing pdfUrl"})}
 
     try:
         pdf_stream = download_pdf(pdf_url)
         pdf_text = extract_text_from_pdf(pdf_stream)
         questions = parse_questions(pdf_text)
-        print(json.dumps({"data": questions}, indent=4))  # Pretty print JSON
+        return {"statusCode": 200, "body": json.dumps({"data": questions})}
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
+        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
