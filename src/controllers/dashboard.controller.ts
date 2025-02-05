@@ -339,7 +339,35 @@ export const getDashboardData: RequestHandler = bigPromise(
         console.error(err);
       });
 
-      console.log(payment, uniqueCoursesBought);
+      const reviews: any[] | any = await Reviews.find({}).catch((err) => {
+        console.log(err);
+      });
+
+      const reviewObj = {
+        "5 Star":
+          (reviews?.filter((s: any) => s.rating == 5)?.length /
+            reviews?.length.toFixed(2)) *
+          100,
+        "4 Star":
+          (reviews?.filter((s: any) => s.rating == 4)?.length /
+            reviews?.length.toFixed(2)) *
+          100,
+        "3 Star":
+          (reviews?.filter((s: any) => s.rating == 3)?.length /
+            reviews?.length.toFixed(2)) *
+          100,
+        "2 Star":
+          (reviews?.filter((s: any) => s.rating == 2)?.length /
+            reviews?.length.toFixed(2)) *
+          100,
+        "1 Star":
+          (reviews?.filter((s: any) => s.rating == 1)?.length /
+            reviews?.length.toFixed(2)) *
+          100,
+        "Overall Rating":
+          reviews?.reduce((acc: any, it: any) => acc + it?.rating, 0) /
+          (reviews?.length * 5),
+      };
 
       const respData: any = {
         instructors: instructors?.length,
@@ -348,6 +376,7 @@ export const getDashboardData: RequestHandler = bigPromise(
         payment: payment[0]?.totalAmount,
         onGoingCourses: onGoingCourses?.length,
         endedCourses: endedCourses?.length,
+        reviews: reviewObj,
         coursesBought: uniqueCoursesBought?.length,
       };
 
