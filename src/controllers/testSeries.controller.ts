@@ -94,13 +94,27 @@ export const addTestSeries: RequestHandler = bigPromise(
   }
 );
 
-function Parse(str: any) {
-  try {
-    return JSON.parse(str);
-  } catch (err) {
-    return str;
+export const updateTestSeries: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+      const updatedTestSeries = await testSeries
+        .findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true })
+        .catch((err) => {
+          console.log(err);
+          return next(createCustomError("Internal Server Error", 501));
+        });
+      const response = sendSuccessApiResponse(
+        "Test Series Updated Successfully!",
+        updatedTestSeries
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
   }
-}
+);
 
 export const addTests: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
