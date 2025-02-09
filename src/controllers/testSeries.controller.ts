@@ -277,6 +277,7 @@ export const getTestSeries: RequestHandler = bigPromise(
             tests: {
               $push: {
                 testTitle: "$tests.title",
+                _id: "$tests._id",
                 testDescription: "$tests.testDescription",
                 testStatus: "$tests.testStatus",
                 status: "$tests.status",
@@ -295,6 +296,7 @@ export const getTestSeries: RequestHandler = bigPromise(
                     as: "testSection",
                     in: {
                       title: "$$testSection.title",
+                      _id: "$$testSection._id",
                       negativeMarking: "$$testSection.negativeMarking",
                       marksPerQuestion: "$$testSection.marksPerQuestion",
                       questions: "$$testSection.questions",
@@ -317,6 +319,54 @@ export const getTestSeries: RequestHandler = bigPromise(
       return data;
     } catch (error) {
       console.error("Error generating next courseId:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const updateTests: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+
+      const updatedTests = await Tests.findOneAndUpdate(
+        { _id: id },
+        { $set: req.body },
+        { new: true }
+      ).catch((err) => {
+        console.log(err);
+        return next(createCustomError("Internal Server Error", 501));
+      });
+      const response = sendSuccessApiResponse(
+        "Tests Updated Successfully!",
+        updatedTests
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const updateTestSections: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+
+      const updatedSections = await testSections
+        .findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true })
+        .catch((err) => {
+          console.log(err);
+          return next(createCustomError("Internal Server Error", 501));
+        });
+      const response = sendSuccessApiResponse(
+        "Test Sections Updated Successfully!",
+        updatedSections
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
       return next(createCustomError("Internal Server Error", 501));
     }
   }
