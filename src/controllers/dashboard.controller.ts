@@ -11,6 +11,7 @@ import Course from "../models/course.model";
 import Payment from "../models/payment.model";
 import mongoose from "mongoose";
 import Reviews from "../models/review.model";
+import moment from "moment";
 
 export interface studentQueryObj {
   description: string;
@@ -369,6 +370,33 @@ export const getDashboardData: RequestHandler = bigPromise(
           (reviews?.length * 5),
       };
 
+      const result = await Payment.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            revenue: { $sum: "$amount" },
+          },
+        },
+        {
+          $sort: { "_id.year": 1, "_id.month": 1 },
+        },
+      ]);
+
+      console.log(result);
+
+      const formattedData = result
+        .filter((item) => item._id.year !== null && item._id.month !== null)
+        .map((item) => ({
+          date: moment(
+            `${item._id.year}-${String(item._id.month).padStart(2, "0")}-01`,
+            "YYYY-MM-DD"
+          ).format("MMM YYYY"), // Fixed format
+          revenue: item.revenue,
+        }));
+
       const respData: any = {
         instructors: instructors?.length,
         students: students?.length,
@@ -378,6 +406,7 @@ export const getDashboardData: RequestHandler = bigPromise(
         endedCourses: endedCourses?.length,
         reviews: reviewObj,
         coursesBought: uniqueCoursesBought?.length,
+        paymentData: formattedData,
       };
 
       const response = sendSuccessApiResponse(
