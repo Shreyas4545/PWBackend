@@ -523,11 +523,13 @@ export const getReviews: RequestHandler = bigPromise(
     } = req.query;
 
     try {
-      const reviews = await Reviews.find({ courseId: courseId }).catch(
-        (err) => {
-          console.log(err);
-        }
-      );
+      let obj: any = {};
+      if (courseId) {
+        obj.courseId = courseId;
+      }
+      const reviews = await Reviews.find(obj).catch((err) => {
+        console.log(err);
+      });
 
       const response = sendSuccessApiResponse(
         "Reviews Sent Successfully!",
