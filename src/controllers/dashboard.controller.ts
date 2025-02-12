@@ -120,6 +120,12 @@ export const getNotifications: RequestHandler = bigPromise(
         console.log(err);
       });
 
+      const allNotifications: any = await Notifications.find({
+        status: "ACTIVE",
+      }).catch((err) => {
+        console.log(err);
+      });
+
       const paidNotifications = await Payment.aggregate([
         {
           $lookup: {
@@ -147,7 +153,11 @@ export const getNotifications: RequestHandler = bigPromise(
         },
       ]);
 
-      notifications = [...unpaidNotifications, ...paidNotifications];
+      if (studentId) {
+        notifications = [...unpaidNotifications, ...paidNotifications];
+      } else {
+        notifications = [...notifications, ...allNotifications];
+      }
       const response = sendSuccessApiResponse(
         "Notifications sent Successfully!",
         notifications
