@@ -1,6 +1,7 @@
 import Notifications from "../models/notifications.model";
 import Banners from "../models/banner.model";
 import Student from "../models/student.model";
+import FreeVideos from "../models/freeVideos.model";
 import Queries from "../models/studentQueries.model";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
@@ -544,6 +545,67 @@ export const addReviews: RequestHandler = bigPromise(
       const response = sendSuccessApiResponse(
         "Review Added Successfully!",
         newReview
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const addFreeVideos: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      description,
+      thumbnailLink,
+      videoLink,
+      createdBy,
+    }: {
+      description: string;
+      thumbnailLink: string;
+      videoLink: string;
+      createdBy: string;
+    } = req.body;
+
+    const addObj: any = {
+      createdBy,
+      description,
+      thumbnailLink,
+      videoLink,
+      status: "ACTIVE",
+      createdAt: new Date(),
+    };
+
+    try {
+      const newFreeVideo = await FreeVideos.create(addObj);
+
+      const response = sendSuccessApiResponse(
+        "Video Info Added Successfully!",
+        newFreeVideo
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getFreeVideos: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId }: { userId?: string } = req.query;
+      const getObj: any = {};
+      if (userId) getObj.createdBy = userId;
+
+      const freeVideos = await FreeVideos.find(getObj).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Free Videos Sent Successfully!",
+        freeVideos
       );
       res.status(200).send(response);
     } catch (err) {
