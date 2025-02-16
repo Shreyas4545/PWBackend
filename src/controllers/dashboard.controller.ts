@@ -159,6 +159,9 @@ export const getNotifications: RequestHandler = bigPromise(
       } else {
         notifications = [...notifications, ...allNotifications];
       }
+
+      notifications?.sort((a: any, b: any) => b.createdAt - a.createdAt);
+
       const response = sendSuccessApiResponse(
         "Notifications sent Successfully!",
         notifications
