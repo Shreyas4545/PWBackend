@@ -29,6 +29,7 @@ interface courseObj {
   startDate?: Date;
   endDate?: Date;
   price?: number;
+  isPaid:boolean;
 }
 
 export interface ILiveClass {
@@ -77,6 +78,7 @@ export const addCourse: RequestHandler = bigPromise(
         startDate,
         courseLevels,
         endDate,
+  isPaid
       }: {
         title: string;
         subTitle: string;
@@ -93,6 +95,7 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage: string;
         courseDurations: string;
         courseLevels: string;
+        isPaid:boolean
       } = req.body;
 
       const toStore: courseObj = {
@@ -109,6 +112,7 @@ export const addCourse: RequestHandler = bigPromise(
         courseLevels,
         price,
         startDate,
+        isPaid,
         createdBy: req.user._id,
         featured,
         endDate,
@@ -254,7 +258,7 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
         matchConditions.subCategory = subCategory;
       }
 
-      const data: any[] = await Course.aggregate([
+      let data: any[] = await Course.aggregate([
         {
           $match: matchConditions,
         },
@@ -367,6 +371,8 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
           },
         },
       ]);
+
+      data = data?.sort((a,b)=>a.createdAt - b.createdAt)
 
       const response = sendSuccessApiResponse("Course get successfully!", data);
       res.status(200).send(response);
