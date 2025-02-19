@@ -359,6 +359,7 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
                     as: "lecture",
                     in: {
                       lectureTitle: "$$lecture.title",
+                      id:"$$lecture._id",
                       notes: "$$lecture.notes",
                       description: "$$lecture.description",
                       video: "$$lecture.video",
