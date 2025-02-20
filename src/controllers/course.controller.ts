@@ -374,7 +374,7 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
         },
       ]);
 
-      data = data?.sort((a,b)=>a.createdAt - b.createdAt)
+      data = data?.sort((a,b)=>b.createdAt - a.createdAt)
 
       const response = sendSuccessApiResponse("Course get successfully!", data);
       res.status(200).send(response);
