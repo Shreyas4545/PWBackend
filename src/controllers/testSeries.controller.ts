@@ -220,6 +220,8 @@ export const getTestSeries: RequestHandler = bigPromise(
 
       if (title) matchConditions.title = title;
 
+      console.log(matchConditions)
+
       const data: any[] = await testSeries.aggregate([
         {
           $match: matchConditions,
@@ -311,6 +313,7 @@ export const getTestSeries: RequestHandler = bigPromise(
         },
       ]);
 
+      console.log(data?.length)
       const response = sendSuccessApiResponse(
         "Test Series get successfully!",
         data
@@ -323,6 +326,61 @@ export const getTestSeries: RequestHandler = bigPromise(
     }
   }
 );
+
+export const getHomeTestSeries:RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const obj:any = {};
+    const {id}:{id?:string} = req.query;
+    if(id){
+    const testSeriesId = new mongoose.Types.ObjectId(id);
+    if(testSeriesId) obj._id = testSeriesId;
+    }
+
+    const result = await testSeries.aggregate([
+      {
+        $match: obj // Match the specific test series
+      },
+      {
+        $lookup: {
+          from: "tests", // Reference the tests collection
+          localField: "_id",
+          foreignField: "testSeriesId",
+          as: "tests"
+        }
+      },
+      {
+        $addFields: {
+          numberOfTests: { $size: "$tests" }, // Count total tests in this series
+          NoOfQuestions: { $max: "$tests.noOfQuestions" }, // Get max noOfQuestions
+          TotalMarks: { $max: "$tests.totalMarks" } // Get max totalMarks
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          price: 1,
+          title: 1,
+          numberOfTests: 1,
+          NoOfQuestions: 1,
+          TotalMarks: 1
+        }
+      }
+    ]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Test series not found" });
+    }
+
+    return res.status(200).json({
+      message:"Success",
+      data:result
+  });
+  } catch (error) {
+    console.error("Error fetching test series data:", error);
+   return  res.status(500).json({ message: "Internal server error" });
+  }
+})
 
 export const updateTests: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {

@@ -386,10 +386,42 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
   }
 );
 
+
+export const getHomeCourses = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {id}:{id?:string} = req.query;
+
+    try {
+      const obj:any = {}
+      if(id){
+      obj._id = new mongoose.Types.ObjectId(id);
+      }
+      const courses = await Course.find(obj).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Courses sent Successfully!",
+        courses
+      );
+      return res.status(200).send(response);
+    } catch (error) {
+      console.error("Error sending courses:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
 export const getSubjects = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
+    const {courseId}:{courseId?:string} = req.query;
+
     try {
-      const subjects = await Subjects.find({}).catch((err) => {
+      const obj:any = {}
+      if(courseId){
+      obj.courseId = new mongoose.Types.ObjectId(courseId);
+      }
+      const subjects = await Subjects.find(obj).catch((err) => {
         console.log(err);
       });
       const response = sendSuccessApiResponse(
@@ -398,7 +430,7 @@ export const getSubjects = bigPromise(
       );
       return res.status(200).send(response);
     } catch (error) {
-      console.error("Error generating next courseId:", error);
+      console.error("Error sending subjects", error);
       return next(createCustomError("Internal Server Error", 501));
     }
   }
