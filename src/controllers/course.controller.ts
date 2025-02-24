@@ -434,14 +434,14 @@ export const getSubjects = bigPromise(
         },
         {
           $addFields: {
-            numberOfTests: { $size: "$lectures" }, // Count total tests in this series
+            numberOfLectures: { $size: "$lectures" }, // Count total tests in this series
           },
         },
         {
           $project: {
             _id: 1,
             title: 1,
-            numberOfTests: 1,
+            numberOfLectures: 1,
           },
         },
       ]).catch((err) => {
