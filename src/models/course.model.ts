@@ -1,10 +1,25 @@
 import mongoose from "mongoose";
 
+//Faq schema
+const faqSchema = new mongoose.Schema({
+  question: {
+    type: String,
+    required: [true, "Please provide a question"],
+    maxlength: [120, "Question should be under 120 characters."],
+  },
+  answer: {
+    type: String,
+    required: [true, "Please provide an answer"],
+    maxlength: [120, "Answer should be under 120 characters."],
+  },
+});
+
+// Course schema
 const courseSchema = new mongoose.Schema({
   title: {
     type: String,
     required: [true, "Please provide a title"],
-    maxlength: [40, "title should be under 40 characters."],
+    maxlength: [40, "Title should be under 40 characters."],
   },
   courseId: {
     type: String,
@@ -16,22 +31,22 @@ const courseSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: new Date(),
+    default: Date.now, // Using Date.now to avoid creating a new instance
   },
   subTitle: {
     type: String,
-    required: [true, "Please provide a sub title"],
-    maxlength: [40, "sub title should be under 40 characters."],
+    required: [true, "Please provide a subtitle"],
+    maxlength: [40, "Subtitle should be under 40 characters."],
   },
   category: {
     type: String,
     required: [true, "Please provide category"],
-    maxlength: [40, "category should be under 40 characters."],
+    maxlength: [40, "Category should be under 40 characters."],
   },
   subCategory: {
     type: String,
-    required: [true, "Please provide a sub category"],
-    maxlength: [40, "sub category should be under 40 characters."],
+    required: [true, "Please provide a subcategory"],
+    maxlength: [40, "Subcategory should be under 40 characters."],
   },
   price: {
     type: Number,
@@ -45,11 +60,12 @@ const courseSchema = new mongoose.Schema({
   topic: {
     type: String,
     required: [true, "Please provide a topic"],
-    maxlength: [40, "topic should be under 40 characters."],
+    maxlength: [40, "Topic should be under 40 characters."],
   },
   instructor: [
     {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   language: {
@@ -83,16 +99,12 @@ const courseSchema = new mongoose.Schema({
       type: String,
     },
   ],
-  requirements: [
-    {
-      type: String,
-    },
-  ],
+  requirements: [faqSchema], 
   isPaid: {
     type: Boolean,
   },
   createdBy: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
   featured: {
@@ -105,6 +117,7 @@ const courseSchema = new mongoose.Schema({
     type: String,
   },
 });
+
 
 const Course = mongoose.model("Course", courseSchema, "course");
 

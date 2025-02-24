@@ -10,6 +10,11 @@ import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
 import Subjects from "../models/subjects.model";
 
+type FAQ={
+  question:string;
+  answer:string;
+}
+
 interface courseObj {
   title: string;
   subTitle: string;
@@ -56,7 +61,7 @@ interface courseUpdateObj {
   courseDescription: string;
   learnings: string[];
   targetAudience: string[];
-  requirements: string[];
+  requirements: FAQ[];
 }
 
 export const addCourse: RequestHandler = bigPromise(
@@ -151,7 +156,7 @@ export const updateCourse: RequestHandler = bigPromise(
       courseDescription: string;
       learnings: string[];
       targetAudience: string[];
-      requirements: string[];
+      requirements: FAQ[];
       welcomeMsg: string;
       congratulationsMsg: string;
     } = req.body;
