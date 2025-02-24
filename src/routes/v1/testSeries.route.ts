@@ -3,7 +3,9 @@ import {
   addTestSeries,
   addTests,
   getHomeTestSeries,
+  getTestSections,
   getTestSeries,
+  getTests,
   updateTestSections,
   updateTestSeries,
   updateTests,
@@ -16,8 +18,9 @@ router.route("/updateTestSeries/:id").put(updateTestSeries);
 router.route("/updateTestSections/:id").put(updateTestSections);
 router.route("/updateTests/:id").put(updateTests);
 router.route("/addTests").post(addTests);
+router.route("/getTests").get(getTests);
 router.route("/getTestSeries").get(getTestSeries);
+router.route("/getTestSections").get(getTestSections);
 router.route("/getHomeTestSeries").get(getHomeTestSeries);
-
 
 export default router;

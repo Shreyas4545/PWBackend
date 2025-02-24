@@ -8,8 +8,14 @@ const testSeriesSchema = new mongoose.Schema({
   status: {
     type: String,
   },
+  description: {
+    type: String,
+  },
   price: {
     type: Number,
+  },
+  whatYoullGet: {
+    type: [String],
   },
   sortBy: {
     type: Number,

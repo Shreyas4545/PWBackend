@@ -6,10 +6,13 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import mongoose from "mongoose";
+import test from "node:test";
 
 export interface testSeriesObj {
   title: string;
   status: string;
+  description: string;
+  whatYoullGet: [string];
   price: number;
   sortBy: number;
   isEnabled: boolean;
@@ -60,13 +63,17 @@ export const addTestSeries: RequestHandler = bigPromise(
       price,
       sortBy,
       isEnabled,
+      description,
+      whatYoullGet,
       createdBy,
     }: {
       title: string;
       status: string;
       price: number;
       sortBy: number;
+      description: string;
       isEnabled: boolean;
+      whatYoullGet: [string];
       createdBy: string;
     } = req.body;
 
@@ -75,6 +82,8 @@ export const addTestSeries: RequestHandler = bigPromise(
       status: "ACTIVE",
       price,
       sortBy,
+      whatYoullGet,
+      description,
       isEnabled,
       createdBy,
     };
@@ -220,8 +229,6 @@ export const getTestSeries: RequestHandler = bigPromise(
 
       if (title) matchConditions.title = title;
 
-      console.log(matchConditions)
-
       const data: any[] = await testSeries.aggregate([
         {
           $match: matchConditions,
@@ -313,7 +320,7 @@ export const getTestSeries: RequestHandler = bigPromise(
         },
       ]);
 
-      console.log(data?.length)
+      console.log(data?.length);
       const response = sendSuccessApiResponse(
         "Test Series get successfully!",
         data
@@ -327,60 +334,148 @@ export const getTestSeries: RequestHandler = bigPromise(
   }
 );
 
-export const getHomeTestSeries:RequestHandler = bigPromise(
+export const getHomeTestSeries: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const obj:any = {};
-    const {id}:{id?:string} = req.query;
-    if(id){
-    const testSeriesId = new mongoose.Types.ObjectId(id);
-    if(testSeriesId) obj._id = testSeriesId;
-    }
-
-    const result = await testSeries.aggregate([
-      {
-        $match: obj // Match the specific test series
-      },
-      {
-        $lookup: {
-          from: "tests", // Reference the tests collection
-          localField: "_id",
-          foreignField: "testSeriesId",
-          as: "tests"
-        }
-      },
-      {
-        $addFields: {
-          numberOfTests: { $size: "$tests" }, // Count total tests in this series
-          NoOfQuestions: { $max: "$tests.noOfQuestions" }, // Get max noOfQuestions
-          TotalMarks: { $max: "$tests.totalMarks" } // Get max totalMarks
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          price: 1,
-          title: 1,
-          numberOfTests: 1,
-          NoOfQuestions: 1,
-          TotalMarks: 1
-        }
+    try {
+      const obj: any = {};
+      const { id }: { id?: string } = req.query;
+      if (id) {
+        const testSeriesId = new mongoose.Types.ObjectId(id);
+        if (testSeriesId) obj._id = testSeriesId;
       }
-    ]);
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "Test series not found" });
+      const result = await testSeries.aggregate([
+        {
+          $match: obj, // Match the specific test series
+        },
+        {
+          $lookup: {
+            from: "tests", // Reference the tests collection
+            localField: "_id",
+            foreignField: "testSeriesId",
+            as: "tests",
+          },
+        },
+        {
+          $addFields: {
+            numberOfTests: { $size: "$tests" }, // Count total tests in this series
+            NoOfQuestions: { $max: "$tests.noOfQuestions" }, // Get max noOfQuestions
+            TotalMarks: { $max: "$tests.totalMarks" }, // Get max totalMarks
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            price: 1,
+            title: 1,
+            numberOfTests: 1,
+            NoOfQuestions: 1,
+            TotalMarks: 1,
+            description: 1,
+            whatYoullGet: 1,
+          },
+        },
+      ]);
+
+      result.sort((a, b) => b.createdAt - a.createdAt);
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Test series not found" });
+      }
+
+      return res.status(200).json({
+        message: "Success",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching test series data:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
-
-    return res.status(200).json({
-      message:"Success",
-      data:result
-  });
-  } catch (error) {
-    console.error("Error fetching test series data:", error);
-   return  res.status(500).json({ message: "Internal server error" });
   }
-})
+);
+
+export const getTests: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const obj: any = {};
+      const { id }: { id?: string } = req.query;
+      if (id) {
+        const testSeriesId = new mongoose.Types.ObjectId(id);
+        if (testSeriesId) obj.testSeriesId = testSeriesId;
+      }
+
+      const result = await Tests.aggregate([
+        {
+          $match: obj, // Match the specific test series
+        },
+        {
+          $addFields: {
+            title: "$title", // Count total tests in this series
+            testDescription: "$testDescription", // Get max noOfQuestions
+            startDate: "$startDate", // Get max totalMarks
+            endDate: "$endDate",
+            allowPdfMaterialDownload: "$allowPdfMaterialDownload",
+          },
+        },
+        {
+          $project: {
+            title: 1,
+            price: 1,
+            testDescription: 1,
+            startDate: 1,
+            endDate: 1,
+            allowPdfMaterialDownload: 1,
+          },
+        },
+      ]);
+
+      result.sort((a, b) => b.createdAt - a.createdAt);
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Tests not found" });
+      }
+
+      return res.status(200).json({
+        message: "Success",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching tests data:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+export const getTestSections: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const obj: any = {};
+      const { id }: { id?: string } = req.query;
+      if (id) {
+        const testId = new mongoose.Types.ObjectId(id);
+        if (testId) obj.testId = testId;
+      }
+
+      const result: any = await testSections.find(obj).catch((err) => {
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+      });
+
+      result.sort((a: any, b: any) => b.createdAt - a.createdAt);
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Test Sections not found" });
+      }
+
+      return res.status(200).json({
+        message: "Success",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching test section data:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
 
 export const updateTests: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
