@@ -10,10 +10,10 @@ import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
 import Subjects from "../models/subjects.model";
 
-type FAQ={
-  question:string;
-  answer:string;
-}
+type FAQ = {
+  question: string;
+  answer: string;
+};
 
 interface courseObj {
   title: string;
@@ -335,6 +335,8 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             featured: { $first: "$featured" },
             courseDescription: { $first: "$courseDescription" },
             courseThumbnail: { $first: "$courseThumbnail" },
+            price: { $first: "$price" },
+            isPaid: { $first: "$isPaid" },
             courseTrailer: { $first: "$courseTrailer" },
             congratulationsMsg: { $first: "$congratulationsMsg" },
             welcomeMsg: { $first: "$welcomeMsg" },

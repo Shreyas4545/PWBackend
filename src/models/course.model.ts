@@ -99,7 +99,7 @@ const courseSchema = new mongoose.Schema({
       type: String,
     },
   ],
-  requirements: [faqSchema], 
+  requirements: [faqSchema],
   isPaid: {
     type: Boolean,
   },
@@ -117,7 +117,6 @@ const courseSchema = new mongoose.Schema({
     type: String,
   },
 });
-
 
 const Course = mongoose.model("Course", courseSchema, "course");
 
