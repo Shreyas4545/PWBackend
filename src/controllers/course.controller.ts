@@ -29,7 +29,7 @@ interface courseObj {
   startDate?: Date;
   endDate?: Date;
   price?: number;
-  isPaid:boolean;
+  isPaid: boolean;
 }
 
 export interface ILiveClass {
@@ -78,7 +78,7 @@ export const addCourse: RequestHandler = bigPromise(
         startDate,
         courseLevels,
         endDate,
-  isPaid
+        isPaid,
       }: {
         title: string;
         subTitle: string;
@@ -95,7 +95,7 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage: string;
         courseDurations: string;
         courseLevels: string;
-        isPaid:boolean
+        isPaid: boolean;
       } = req.body;
 
       const toStore: courseObj = {
@@ -352,14 +352,14 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             subjects: {
               $push: {
                 subjectTitle: "$subjects.title",
-                id:"$subjects._id",
+                id: "$subjects._id",
                 lectures: {
                   $map: {
                     input: "$subjects.lectures",
                     as: "lecture",
                     in: {
                       lectureTitle: "$$lecture.title",
-                      id:"$$lecture._id",
+                      id: "$$lecture._id",
                       notes: "$$lecture.notes",
                       description: "$$lecture.description",
                       video: "$$lecture.video",
@@ -374,7 +374,7 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
         },
       ]);
 
-      data = data?.sort((a,b)=>b.createdAt - a.createdAt)
+      data = data?.sort((a, b) => b.createdAt - a.createdAt);
 
       const response = sendSuccessApiResponse("Course get successfully!", data);
       res.status(200).send(response);
@@ -386,15 +386,14 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
   }
 );
 
-
 export const getHomeCourses = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {id}:{id?:string} = req.query;
+    const { id }: { id?: string } = req.query;
 
     try {
-      const obj:any = {}
-      if(id){
-      obj._id = new mongoose.Types.ObjectId(id);
+      const obj: any = {};
+      if (id) {
+        obj._id = new mongoose.Types.ObjectId(id);
       }
       const courses = await Course.find(obj).catch((err) => {
         console.log(err);
@@ -414,14 +413,38 @@ export const getHomeCourses = bigPromise(
 
 export const getSubjects = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {courseId}:{courseId?:string} = req.query;
+    const { courseId }: { courseId?: string } = req.query;
 
     try {
-      const obj:any = {}
-      if(courseId){
-      obj.courseId = new mongoose.Types.ObjectId(courseId);
+      const obj: any = {};
+      if (courseId) {
+        obj.courseId = new mongoose.Types.ObjectId(courseId);
       }
-      const subjects = await Subjects.find(obj).catch((err) => {
+      const subjects = await Subjects.aggregate([
+        {
+          $match: obj,
+        },
+        {
+          $lookup: {
+            from: "lectures", // Reference the tests collection
+            localField: "_id",
+            foreignField: "subjectId",
+            as: "lectures",
+          },
+        },
+        {
+          $addFields: {
+            numberOfTests: { $size: "$lectures" }, // Count total tests in this series
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            numberOfTests: 1,
+          },
+        },
+      ]).catch((err) => {
         console.log(err);
       });
       const response = sendSuccessApiResponse(
