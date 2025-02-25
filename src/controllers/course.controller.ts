@@ -9,6 +9,7 @@ import { calendar_v3 } from "googleapis/build/src/apis/calendar";
 import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
 import Subjects from "../models/subjects.model";
+import Lectures from "../models/lectures.model";
 
 type FAQ = {
   question: string;
@@ -593,6 +594,141 @@ export const getLiveClasses: RequestHandler = bigPromise(
       const resp = sendSuccessApiResponse(
         "Live Classes Sent Successfully!",
         liveClasses
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getLectures: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { subjectId }: { subjectId?: string } = req.query;
+
+      const obj: any = {};
+
+      if (subjectId) {
+        obj.subjectId = new mongoose.Types.ObjectId(subjectId);
+      }
+      obj.status = "ACTIVE";
+
+      const lectures: any = await Lectures.aggregate([
+        {
+          $match: obj,
+        },
+        {
+          $addFields: {
+            notes: { $size: "$notes" },
+            tests: { $size: "$test" },
+            dpp: { $size: "$dpp" },
+            recordedLectures: { $size: "$video" },
+            assignments: { $size: "$assignment" },
+          },
+        },
+        {
+          $project: {
+            title: 1,
+            notes: 1,
+            tests: 1,
+            dpp: 1,
+            recordedLectures: 1,
+            assignments: 1,
+          },
+        },
+      ]).catch((err) => {
+        console.log(err);
+      });
+
+      const resp = sendSuccessApiResponse(
+        "Lectures Sent Successfully!",
+        lectures
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getLectureDetails: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id }: { id?: string } = req.query;
+
+      const obj: any = {};
+
+      if (id) {
+        obj._id = new mongoose.Types.ObjectId(id);
+      }
+      obj.status = "ACTIVE";
+
+      const lectureDetails: any = await Lectures.find(obj).catch((err) => {
+        console.log(err);
+      });
+
+      const resp = sendSuccessApiResponse(
+        "Lecture Details Sent Successfully!",
+        lectureDetails
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getAllTestsInCourse: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { courseId }: { courseId?: string } = req.query;
+
+      const allTests: any = await Lectures.aggregate([
+        {
+          $lookup: {
+            from: "subjects",
+            localField: "subjectId",
+            foreignField: "_id",
+            as: "subject",
+          },
+        },
+        { $unwind: "$subject" },
+        {
+          $match: {
+            "subject.courseId": new mongoose.Types.ObjectId(courseId), // Replace with actual courseId
+            "subject.status": "ACTIVE",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            allTests: { $push: "$test" }, // Collect all tests arrays
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            allTests: {
+              $reduce: {
+                input: "$allTests",
+                initialValue: [],
+                in: { $concatArrays: ["$$value", "$$this"] },
+              },
+            }, // Flatten the array of arrays into a single array
+          },
+        },
+      ]);
+
+      const resp = sendSuccessApiResponse(
+        "All Tests Sent Successfully!",
+        allTests
       );
 
       return res.status(200).send(resp);

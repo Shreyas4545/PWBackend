@@ -10,6 +10,9 @@ import {
   getLiveClasses,
   updateLiveClass,
   getHomeCourses,
+  getLectures,
+  getLectureDetails,
+  getAllTestsInCourse,
 } from "../../controllers/course.controller";
 const router = express.Router();
 import { isLoggedIn } from "../../middlewares/authorization";
@@ -24,4 +27,7 @@ router.route("/getGoogleMeetLink").post(getGoogleMeetLink);
 router.route("/getFreeVideos").get(getFreeVideos);
 router.route("/getLiveClasses").get(getLiveClasses);
 router.route("/updateLiveClass/:id").put(updateLiveClass);
+router.route("/getLectures").get(getLectures);
+router.route("/getLectureDetails").get(getLectureDetails);
+router.route("/getAllTestsInCourse").get(getAllTestsInCourse);
 export default router;
