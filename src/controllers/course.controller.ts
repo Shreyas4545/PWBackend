@@ -775,32 +775,6 @@ export const updateLiveClass: RequestHandler = bigPromise(
   }
 );
 
-export const updateLectures: RequestHandler = bigPromise(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { id }: { id?: string } = req.params;
-
-      const updatedLectures = await Lectures.findOneAndUpdate(
-        { _id: id },
-        { $set: req.body },
-        { new: true }
-      ).catch((err) => {
-        console.log(err);
-      });
-
-      const resp = sendSuccessApiResponse(
-        "Lectures Updated Successfully!",
-        updatedLectures
-      );
-
-      return res.status(200).send(resp);
-    } catch (err) {
-      console.log(err);
-      return next(createCustomError("Internal Server Error", 501));
-    }
-  }
-);
-
 export const getFreeVideos: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
