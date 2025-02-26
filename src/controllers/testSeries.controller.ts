@@ -6,14 +6,15 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import mongoose from "mongoose";
-import test from "node:test";
 
 export interface testSeriesObj {
   title: string;
   status: string;
   description: string;
   whatYoullGet: [string];
-  price: number;
+  isPaid: boolean;
+  actualPrice?: number;
+  discountedPrice?: number;
   sortBy: number;
   isEnabled: boolean;
   createdBy: string;
@@ -60,7 +61,8 @@ export const addTestSeries: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
       title,
-      price,
+      actualPrice,
+      discountedPrice,
       sortBy,
       isEnabled,
       description,
@@ -69,9 +71,10 @@ export const addTestSeries: RequestHandler = bigPromise(
     }: {
       title: string;
       status: string;
-      price: number;
+      actualPrice: number;
       sortBy: number;
       description: string;
+      discountedPrice: number;
       isEnabled: boolean;
       whatYoullGet: [string];
       createdBy: string;
@@ -80,7 +83,8 @@ export const addTestSeries: RequestHandler = bigPromise(
     const addObj: testSeriesObj = {
       title,
       status: "ACTIVE",
-      price,
+      actualPrice,
+      discountedPrice,
       sortBy,
       whatYoullGet,
       description,
@@ -366,7 +370,9 @@ export const getHomeTestSeries: RequestHandler = bigPromise(
         {
           $project: {
             _id: 1,
-            price: 1,
+            actualPrice: 1,
+            discountedPrice: 1,
+            isPaid: 1,
             title: 1,
             numberOfTests: 1,
             NoOfQuestions: 1,

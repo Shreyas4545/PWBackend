@@ -34,7 +34,8 @@ interface courseObj {
   createdAt: Date;
   startDate?: Date;
   endDate?: Date;
-  price?: number;
+  actualPrice?: number;
+  discountedPrice?: number;
   isPaid: boolean;
 }
 
@@ -80,7 +81,8 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage,
         courseDurations,
         featured,
-        price,
+        actualPrice,
+        discountedPrice,
         startDate,
         courseLevels,
         endDate,
@@ -95,7 +97,8 @@ export const addCourse: RequestHandler = bigPromise(
         topic: string;
         language: string;
         featured: boolean;
-        price?: number;
+        actualPrice?: number;
+        discountedPrice?: number;
         startDate: Date;
         endDate: Date;
         subtitleLanguage: string;
@@ -116,7 +119,8 @@ export const addCourse: RequestHandler = bigPromise(
         subtitleLanguage,
         courseDurations,
         courseLevels,
-        price,
+        actualPrice,
+        discountedPrice,
         startDate,
         isPaid,
         createdBy: req.user._id,
@@ -336,7 +340,8 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             featured: { $first: "$featured" },
             courseDescription: { $first: "$courseDescription" },
             courseThumbnail: { $first: "$courseThumbnail" },
-            price: { $first: "$price" },
+            actualPrice: { $first: "$actualPrice" },
+            discountedPrice: { $first: "$discountedPrice" },
             isPaid: { $first: "$isPaid" },
             courseTrailer: { $first: "$courseTrailer" },
             congratulationsMsg: { $first: "$congratulationsMsg" },
@@ -760,6 +765,32 @@ export const updateLiveClass: RequestHandler = bigPromise(
       const resp = sendSuccessApiResponse(
         "Live Classes Updated Successfully!",
         updatedLiveClass
+      );
+
+      return res.status(200).send(resp);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const updateLectures: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id }: { id?: string } = req.params;
+
+      const updatedLectures = await Lectures.findOneAndUpdate(
+        { _id: id },
+        { $set: req.body },
+        { new: true }
+      ).catch((err) => {
+        console.log(err);
+      });
+
+      const resp = sendSuccessApiResponse(
+        "Lectures Updated Successfully!",
+        updatedLectures
       );
 
       return res.status(200).send(resp);

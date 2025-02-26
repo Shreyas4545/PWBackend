@@ -11,7 +11,10 @@ const testSeriesSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  price: {
+  actualPrice: {
+    type: Number,
+  },
+  discountedPrice: {
     type: Number,
   },
   whatYoullGet: {
@@ -21,6 +24,9 @@ const testSeriesSchema = new mongoose.Schema({
     type: Number,
   },
   isEnabled: {
+    type: Boolean,
+  },
+  isPaid: {
     type: Boolean,
   },
   createdAt: {
