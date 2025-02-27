@@ -461,10 +461,21 @@ export const getTestSections: RequestHandler = bigPromise(
         if (testId) obj.testId = testId;
       }
 
-      const result: any = await testSections.find(obj).catch((err) => {
-        console.log(err);
-        return res.status(500).json({ message: "Internal server error" });
-      });
+      const result: any = await testSections
+        .aggregate([
+          {
+            $match: obj,
+          },
+          {
+            $project: {
+              questions: "$questions",
+            },
+          },
+        ])
+        .catch((err) => {
+          console.log(err);
+          return res.status(500).json({ message: "Internal server error" });
+        });
 
       result.sort((a: any, b: any) => b.createdAt - a.createdAt);
 
