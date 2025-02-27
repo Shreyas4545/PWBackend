@@ -469,6 +469,11 @@ export const getTestSections: RequestHandler = bigPromise(
           {
             $project: {
               questions: "$questions",
+              title: "$title",
+              negativeMarking: "$negativeMarking",
+              marksPerQuestion: "$marksPerQuestion",
+              isOptional: "$isOptional",
+              isFixedTiming: "$isFixedTiming",
             },
           },
         ])
