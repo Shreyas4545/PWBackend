@@ -372,6 +372,8 @@ export const getHomeTestSeries: RequestHandler = bigPromise(
             _id: 1,
             actualPrice: 1,
             discountedPrice: 1,
+            isEnabled: 1,
+            sortBy: 1,
             isPaid: 1,
             title: 1,
             numberOfTests: 1,
