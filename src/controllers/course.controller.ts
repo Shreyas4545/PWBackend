@@ -424,6 +424,55 @@ export const getHomeCourses = bigPromise(
   }
 );
 
+export const getWebHomeCourses = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id }: { id?: string } = req.query;
+
+    try {
+      const obj: any = {};
+      if (id) {
+        obj._id = new mongoose.Types.ObjectId(id);
+      }
+      const courses = await Course.aggregate([
+        {
+          $lookup: {
+            from: "payments", // Reference the tests collection
+            localField: "_id",
+            foreignField: "courseId",
+            as: "payments",
+          },
+        },
+        {
+          $addFields: {
+            noOfStudents: { $size: "$payments" }, // Count total tests in this series
+          },
+        },
+        {
+          $project: {
+            noOfStudents: 1,
+            title: 1,
+            startDate: 1,
+            endDate: 1,
+            actualPrice: 1,
+            discountedPrice: 1,
+          },
+        },
+      ]).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Courses sent Successfully!",
+        courses
+      );
+      return res.status(200).send(response);
+    } catch (error) {
+      console.error("Error sending courses:", error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
 export const getSubjects = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const { courseId }: { courseId?: string } = req.query;

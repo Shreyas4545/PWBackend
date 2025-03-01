@@ -13,6 +13,7 @@ import {
   getLectures,
   getLectureDetails,
   getAllTestsInCourse,
+  getWebHomeCourses,
 } from "../../controllers/course.controller";
 const router = express.Router();
 import { isLoggedIn } from "../../middlewares/authorization";
@@ -22,6 +23,7 @@ router.route("/updateCourse/:id").put(isLoggedIn, updateCourse);
 router.route("/getCourseId").get(isLoggedIn, getCourseId);
 router.route("/getCourses").get(getCoursesWithSubjectsAndLectures);
 router.route("/getHomeCourses").get(getHomeCourses);
+router.route("/getWebHomeCourses").get(getWebHomeCourses);
 router.route("/getSubjects").get(getSubjects);
 router.route("/getGoogleMeetLink").post(getGoogleMeetLink);
 router.route("/getFreeVideos").get(getFreeVideos);
