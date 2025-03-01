@@ -3,6 +3,7 @@ import {
   addTestSeries,
   addTests,
   getHomeTestSeries,
+  getSingleTests,
   getTestSections,
   getTestSeries,
   getTests,
@@ -22,5 +23,6 @@ router.route("/getTests").get(getTests);
 router.route("/getTestSeries").get(getTestSeries);
 router.route("/getTestSections").get(getTestSections);
 router.route("/getHomeTestSeries").get(getHomeTestSeries);
+router.route("/getSingleTest").get(getSingleTests);
 
 export default router;

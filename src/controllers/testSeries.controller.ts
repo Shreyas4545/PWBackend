@@ -548,3 +548,42 @@ export const updateTestSections: RequestHandler = bigPromise(
     }
   }
 );
+
+export const getSingleTests: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const obj: any = {};
+      const { id }: { id?: string } = req.query;
+      if (id) {
+        const testId = new mongoose.Types.ObjectId(id);
+        if (testId) obj._id = testId;
+      }
+
+      const result = await Tests.aggregate([
+        {
+          $match: obj, // Match the specific test series
+        },
+        {
+          $lookup: {
+            from: "testsections", // Reference the tests collection
+            localField: "_id",
+            foreignField: "testId",
+            as: "testsections",
+          },
+        },
+      ]);
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Test series not found" });
+      }
+
+      return res.status(200).json({
+        message: "Success",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching test series data:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);

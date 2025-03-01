@@ -399,8 +399,6 @@ export const getDashboardData: RequestHandler = bigPromise(
         },
       ]);
 
-      console.log(result);
-
       const formattedData = result
         .filter((item) => item._id.year !== null && item._id.month !== null)
         .map((item) => ({
@@ -688,6 +686,62 @@ export const updateReviews: RequestHandler = bigPromise(
       const response = sendSuccessApiResponse(
         "Review Updated Successfully!",
         newUpdatedReview
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getAllReviewsOfCourses: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const reviews: any[] | any = await Reviews.aggregate([
+        {
+          $match: {
+            status: "ACTIVE",
+          },
+        },
+        {
+          $project: {
+            courseId: {
+              $toString: "$courseId",
+            },
+            rating: 1,
+          },
+        },
+      ]).catch((err) => {
+        console.log(err);
+      });
+
+      let x = new Set();
+      reviews?.map((item: any, key: any) => {
+        item.courseId = item.courseId.toString();
+        x.add(item?.courseId);
+      });
+
+      let y = Array.from(x);
+
+      let resultObj: any = [];
+
+      for (let i of y) {
+        const obj: any = {
+          courseId: i,
+          rating: (
+            reviews
+              ?.filter((s: any) => s.courseId == i)
+              ?.reduce((acc: any, it: any) => acc + it.rating, 0) /
+            reviews?.filter((s: any) => s.courseId == i)?.length
+          ).toFixed(1),
+        };
+
+        resultObj.push(obj);
+      }
+      const response = sendSuccessApiResponse(
+        "Reviews of courses sent successfully!",
+        resultObj
       );
       res.status(200).send(response);
     } catch (err) {

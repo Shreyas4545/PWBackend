@@ -15,6 +15,7 @@ import {
   getStudentQueries,
   updateBanner,
   updateReviews,
+  getAllReviewsOfCourses,
 } from "../../controllers/dashboard.controller";
 
 import { isLoggedIn } from "../../middlewares/authorization";
@@ -40,5 +41,7 @@ router.route("/getBanners").get(getBanners);
 router.route("/updateBanner/:id").put(updateBanner);
 
 router.route("/DashboardData").get(getDashboardData);
+
+router.route("/getAllReviewsOfCourses").get(getAllReviewsOfCourses);
 
 export default router;
