@@ -452,6 +452,7 @@ export const getWebHomeCourses = bigPromise(
             noOfStudents: 1,
             title: 1,
             startDate: 1,
+            status: 1,
             endDate: 1,
             actualPrice: 1,
             discountedPrice: 1,
