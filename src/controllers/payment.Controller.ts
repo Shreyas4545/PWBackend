@@ -4,6 +4,7 @@ import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import Payment from "../models/payment.model";
 import testSeriesPayment from "../models/testSeriesPayment.model";
+import mongoose from "mongoose";
 export interface paymentObj {
   transactionId: string;
   amount: number;
@@ -52,6 +53,34 @@ export const addPayment: RequestHandler = bigPromise(
       const response = sendSuccessApiResponse(
         "Payment Added Successfully!",
         newPayment
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const getStudentsRegistered: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      id,
+    }: {
+      id?: string;
+    } = req.query;
+
+    const obj: any = {};
+    if (id) {
+      obj.courseId = new mongoose.Types.ObjectId(id);
+    }
+
+    try {
+      const students = await Payment.find(obj);
+
+      const response = sendSuccessApiResponse(
+        "Students registered sent successfully!",
+        students
       );
       res.status(200).send(response);
     } catch (err) {

@@ -14,6 +14,9 @@ const testsSchema = new mongoose.Schema({
   status: {
     type: String,
   },
+  instructions: {
+    type: [String],
+  },
   testSeriesId: {
     type: mongoose.Types.ObjectId,
     ref: "testSeries",

@@ -21,6 +21,7 @@ export interface testSeriesObj {
 }
 
 export interface testsObj {
+  instructions: [string];
   title: string; // Title of the test
   testDescription?: string; // Optional description of the test
   testStatus?: string; // Optional status of the test
@@ -144,6 +145,7 @@ export const addTests: RequestHandler = bigPromise(
       allowPdfMaterialDownload,
       startDate,
       endDate,
+      instructions,
       testMaterial,
       sections,
     }: {
@@ -161,10 +163,12 @@ export const addTests: RequestHandler = bigPromise(
       endDate?: Date; // Optional end date
       testMaterial?: string; // Optional path or URL to test material
       sections: any;
+      instructions?: [string];
     } = req.body;
 
     const toAdd: testsObj = {
       title,
+      instructions,
       testDescription,
       testStatus,
       status,
