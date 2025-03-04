@@ -432,6 +432,7 @@ export const getTests: RequestHandler = bigPromise(
           $project: {
             title: 1,
             price: 1,
+            instructions: 1,
             testDescription: 1,
             startDate: 1,
             endDate: 1,
