@@ -19,22 +19,22 @@ export interface updateSubjectObj {
 export interface lectureObj {
   title: string;
   subjectId: any;
-  notes: string;
-  dpp: string;
-  video: string[];
-  test: string;
-  assignment: string;
+  notes: any;
+  dpp: any;
+  video: any;
+  test: any;
+  assignment: any;
   status: string;
   createdAt: Date;
 }
 
 export interface updateLectureObj {
   title: string;
-  notes: string;
-  dpp: string;
-  video: string;
-  assignment: string;
-  test: string;
+  notes: any;
+  dpp: any;
+  video: any;
+  assignment: any;
+  test: any;
   status: string;
 }
 
@@ -137,11 +137,11 @@ export const editLecture: RequestHandler = bigPromise(
         test,
         notes,
       }: {
-        dpp: string;
-        test: string;
-        video: string;
-        assignment: string;
-        notes: string;
+        dpp: any;
+        test: any;
+        video: any;
+        assignment: any;
+        notes: any;
         title: string;
         status: string;
       } = req.body;

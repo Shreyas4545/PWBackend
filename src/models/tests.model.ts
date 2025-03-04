@@ -45,7 +45,8 @@ const testsSchema = new mongoose.Schema({
     default: new Date(),
   },
   testMaterial: {
-    type: String,
+    name: String,
+    link: String,
   },
   createdAt: {
     type: Date,
