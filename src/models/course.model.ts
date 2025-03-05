@@ -92,17 +92,17 @@ const courseSchema = new mongoose.Schema({
   courseDescription: {
     type: String,
   },
-  learnings: [
+  schedule: [ //ritwik
     {
       type: String,
     },
   ],
-  targetAudience: [
+  whatYouWillGet: [
     {
       type: String,
     },
   ],
-  requirements: [faqSchema],
+  faq: [faqSchema],
   isPaid: {
     type: Boolean,
   },

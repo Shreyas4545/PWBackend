@@ -61,9 +61,9 @@ interface courseUpdateObj {
   congratulationsMsg: string;
   courseTrailer: string;
   courseDescription: string;
-  learnings: string[];
-  targetAudience: string[];
-  requirements: FAQ[];
+  schedule: string[];
+  whatYouWillGet: string[];
+  faq: FAQ[];
 }
 
 export const addCourse: RequestHandler = bigPromise(
@@ -150,18 +150,18 @@ export const updateCourse: RequestHandler = bigPromise(
       courseThumbnail,
       courseTrailer,
       courseDescription,
-      learnings,
-      targetAudience,
-      requirements,
+      schedule,
+       whatYouWillGet,
+      faq,
       welcomeMsg,
       congratulationsMsg,
     }: {
       courseThumbnail: string;
       courseTrailer: string;
       courseDescription: string;
-      learnings: string[];
-      targetAudience: string[];
-      requirements: FAQ[];
+      schedule: string[];
+      whatYouWillGet: string[];
+      faq: FAQ[];
       welcomeMsg: string;
       congratulationsMsg: string;
     } = req.body;
@@ -172,9 +172,9 @@ export const updateCourse: RequestHandler = bigPromise(
       courseThumbnail,
       courseTrailer,
       courseDescription,
-      learnings,
-      targetAudience,
-      requirements,
+      schedule, //ritwik
+      whatYouWillGet, //ritwik
+      faq,//ritwik
       welcomeMsg,
       congratulationsMsg,
     };
@@ -334,9 +334,9 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             subtitleLanguage: { $first: "$subtitleLanguage" },
             courseDurations: { $first: "$courseDurations" },
             courseLevels: { $first: "$courseLevels" },
-            learnings: { $first: "$learnings" },
-            targetAudience: { $first: "$targetAudience" },
-            requirements: { $first: "$requirements" },
+            schedule: { $first: "$schedule" },
+            whatYouWillGet: { $first: "$whatYouWillGet" },
+            faq: { $first: "$faq" },
             featured: { $first: "$featured" },
             courseDescription: { $first: "$courseDescription" },
             courseThumbnail: { $first: "$courseThumbnail" },
