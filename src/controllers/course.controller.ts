@@ -222,7 +222,7 @@ export const getCourseId: RequestHandler = bigPromise(
           "Course Id Sent Successfully!",
           `${randomPrefix}101`
         );
-        return response;
+        return res.status(200).send(response);
       }
 
       // Extract the prefix and numeric part from the latest courseId
