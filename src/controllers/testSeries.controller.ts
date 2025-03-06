@@ -328,7 +328,6 @@ export const getTestSeries: RequestHandler = bigPromise(
         },
       ]);
 
-      console.log(data?.length);
       const response = sendSuccessApiResponse(
         "Test Series get successfully!",
         data
@@ -432,8 +431,9 @@ export const getTests: RequestHandler = bigPromise(
           $project: {
             title: 1,
             price: 1,
-            instructions: 1,
             testDescription: 1,
+            actualPrice: 1,
+            discountedPrice: 1,
             startDate: 1,
             endDate: 1,
             allowPdfMaterialDownload: 1,
@@ -579,7 +579,43 @@ export const getSingleTests: RequestHandler = bigPromise(
       ]);
 
       if (result.length === 0) {
-        return res.status(404).json({ message: "Test series not found" });
+        return res.status(404).json({ message: "Tests not found" });
+      }
+
+      return res.status(200).json({
+        message: "Success",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Error fetching tests data:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+export const getTestInstructions: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const obj: any = {};
+      let { id }: { id?: any } = req.query;
+      if (id) {
+        id = new mongoose.Types.ObjectId(id);
+        if (id) obj._id = id;
+      }
+
+      const result = await Tests.aggregate([
+        {
+          $match: obj, // Match the specific test series
+        },
+        {
+          $project: {
+            instructions: 1,
+          },
+        },
+      ]);
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Tests not found" });
       }
 
       return res.status(200).json({

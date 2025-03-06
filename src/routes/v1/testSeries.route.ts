@@ -4,6 +4,7 @@ import {
   addTests,
   getHomeTestSeries,
   getSingleTests,
+  getTestInstructions,
   getTestSections,
   getTestSeries,
   getTests,
@@ -22,6 +23,7 @@ router.route("/addTests").post(addTests);
 router.route("/getTests").get(getTests);
 router.route("/getTestSeries").get(getTestSeries);
 router.route("/getTestSections").get(getTestSections);
+router.route("/getTestInstructions").get(getTestInstructions);
 router.route("/getHomeTestSeries").get(getHomeTestSeries);
 router.route("/getSingleTest").get(getSingleTests);
 
