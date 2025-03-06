@@ -151,7 +151,7 @@ export const updateCourse: RequestHandler = bigPromise(
       courseTrailer,
       courseDescription,
       schedule,
-       whatYouWillGet,
+      whatYouWillGet,
       faq,
       welcomeMsg,
       congratulationsMsg,
@@ -174,7 +174,7 @@ export const updateCourse: RequestHandler = bigPromise(
       courseDescription,
       schedule, //ritwik
       whatYouWillGet, //ritwik
-      faq,//ritwik
+      faq, //ritwik
       welcomeMsg,
       congratulationsMsg,
     };
@@ -374,10 +374,11 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
                       lectureTitle: "$$lecture.title",
                       id: "$$lecture._id",
                       notes: "$$lecture.notes",
+                      dpp: "$$lecture.dpp",
                       description: "$$lecture.description",
                       video: "$$lecture.video",
-                      file: "$$lecture.file",
-                      captions: "$$lecture.captions",
+                      assignment: "$$lecture.assignment",
+                      test: "$$lecture.test",
                     },
                   },
                 },
@@ -393,7 +394,7 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
       res.status(200).send(response);
       return data;
     } catch (error) {
-      console.error("Error generating next courseId:", error);
+      console.error("Error sending courses:", error);
       return next(createCustomError("Internal Server Error", 501));
     }
   }
