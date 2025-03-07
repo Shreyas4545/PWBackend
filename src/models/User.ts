@@ -56,6 +56,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  photo: {
+    type: String,
+  },
   gender: {
     type: String,
     // required: [true, "Please provide gender"],

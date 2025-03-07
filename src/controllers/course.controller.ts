@@ -10,6 +10,8 @@ import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
 import Subjects from "../models/subjects.model";
 import Lectures from "../models/lectures.model";
+import { title } from "process";
+import { subtle } from "crypto";
 
 type FAQ = {
   question: string;
@@ -406,16 +408,134 @@ export const getHomeCourses = bigPromise(
 
     try {
       const obj: any = {};
+      const obj1: any = {};
+
       if (id) {
         obj._id = new mongoose.Types.ObjectId(id);
       }
-      const courses = await Course.find(obj).catch((err) => {
+      if (id) {
+        obj1.courseId = new mongoose.Types.ObjectId(id);
+      }
+
+      const courses = await Course.aggregate([
+        {
+          $match: obj,
+        },
+        {
+          $lookup: {
+            from: "payments", // Reference the tests collection
+            localField: "_id",
+            foreignField: "courseId",
+            as: "payments",
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "instructor",
+            foreignField: "_id",
+            as: "instructors",
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "creator",
+          },
+        },
+        {
+          $unwind: {
+            path: "$creator",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            title: { $first: "$title" },
+            courseDurations: { $first: "$courseDurations" },
+            createdBy: {
+              $first: {
+                $concat: ["$creator.firstName", " ", "$creator.lastName"],
+              },
+            },
+            instructors: {
+              $push: {
+                $map: {
+                  input: "$instructors",
+                  as: "instructor",
+                  in: {
+                    name: {
+                      $concat: [
+                        "$$instructor.firstName",
+                        " ",
+                        "$$instructor.lastName",
+                      ],
+                    },
+                    photo: "$$instructor.photo",
+                  },
+                },
+              },
+            },
+            subtitle: { $first: "$subtitle" },
+            category: { $first: "$category" },
+            subCategory: { $first: "$subCategory" },
+            actualPrice: { $first: "$actualPrice" },
+            discountedPrice: { $first: "$discountedPrice" },
+            startDate: { $first: "$startDate" },
+            endDate: { $first: "$endDate" },
+            courseDescription: { $first: "$courseDescription" },
+            whatYouWillGet: { $first: "$whatYouWillGet" },
+            faq: { $first: "$faq" },
+            schedule: { $first: "$schedule" },
+          },
+        },
+      ]).catch((err) => {
         console.log(err);
       });
 
+      const classes: any = await Subjects.aggregate([
+        {
+          $match: obj1,
+        },
+        {
+          $lookup: {
+            from: "lectures", // Reference the tests collection
+            localField: "_id",
+            foreignField: "subjectId",
+            as: "lectures",
+          },
+        },
+        {
+          $addFields: {
+            numberOfLectures: { $size: "$lectures" }, // Count total tests in this series
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            numberOfLectures: 1,
+          },
+        },
+      ]).catch((err) => {
+        console.log(err);
+      });
+
+      console.log(classes);
+      const resultObj: any = {
+        courses: courses,
+        classes: classes?.reduce(
+          (acc: any, it: any) => acc + it.numberOfLectures,
+          0
+        ),
+      };
+
       const response = sendSuccessApiResponse(
         "Courses sent Successfully!",
-        courses
+        resultObj
       );
       return res.status(200).send(response);
     } catch (error) {
@@ -630,12 +750,17 @@ export const getLiveClasses: RequestHandler = bigPromise(
       const {
         courseCategory,
         status,
-      }: { courseCategory?: string; status?: string } = req.query;
+        lectureId,
+      }: { courseCategory?: string; status?: string; lectureId?: string } =
+        req.query;
 
       const obj: any = {};
 
       if (courseCategory) {
         obj.courseCategory = courseCategory;
+      }
+      if (lectureId) {
+        obj.lectureId = new mongoose.Types.ObjectId(lectureId);
       }
       if (status) {
         obj.status = status;
@@ -800,9 +925,11 @@ export const updateLiveClass: RequestHandler = bigPromise(
     try {
       const { id }: { id?: string } = req.params;
 
-      const { status }: { status?: string } = req.query;
+      const { status, lectureId }: { status?: string; lectureId?: string } =
+        req.query;
       const obj = {
         status: status,
+        lectureId: lectureId,
       };
 
       const updatedLiveClass = await LiveClass.findOneAndUpdate(
