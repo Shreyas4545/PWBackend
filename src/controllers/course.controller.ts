@@ -10,8 +10,7 @@ import mongoose from "mongoose";
 import LiveClass from "../models/liveClass.model";
 import Subjects from "../models/subjects.model";
 import Lectures from "../models/lectures.model";
-import { title } from "process";
-import { subtle } from "crypto";
+import Reviews from "../models/review.model";
 
 type FAQ = {
   question: string;
@@ -417,7 +416,7 @@ export const getHomeCourses = bigPromise(
         obj1.courseId = new mongoose.Types.ObjectId(id);
       }
 
-      const courses = await Course.aggregate([
+      let courses: any = await Course.aggregate([
         {
           $match: obj,
         },
@@ -496,6 +495,12 @@ export const getHomeCourses = bigPromise(
         console.log(err);
       });
 
+      if (id) {
+        for (let i of courses) {
+          i.instructors = i.instructors[0];
+        }
+      }
+
       const classes: any = await Subjects.aggregate([
         {
           $match: obj1,
@@ -524,14 +529,27 @@ export const getHomeCourses = bigPromise(
         console.log(err);
       });
 
-      console.log(classes);
-      const resultObj: any = {
+      const courseReviews: any = await Reviews.find(obj1);
+
+      const reviewRating: any = (
+        courseReviews?.reduce((acc: any, it: any) => acc + it.rating, 0) /
+        courseReviews?.length
+      ).toFixed(2);
+
+      let resultObj: any = {
         courses: courses,
-        classes: classes?.reduce(
-          (acc: any, it: any) => acc + it.numberOfLectures,
-          0
-        ),
       };
+
+      if (id) {
+        resultObj = {
+          ...resultObj,
+          classes: classes?.reduce(
+            (acc: any, it: any) => acc + it.numberOfLectures,
+            0
+          ),
+          rating: reviewRating,
+        };
+      }
 
       const response = sendSuccessApiResponse(
         "Courses sent Successfully!",
