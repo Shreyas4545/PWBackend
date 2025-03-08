@@ -495,10 +495,8 @@ export const getHomeCourses = bigPromise(
         console.log(err);
       });
 
-      if (id) {
-        for (let i of courses) {
-          i.instructors = i.instructors[0];
-        }
+      for (let i of courses) {
+        i.instructors = i.instructors[0];
       }
 
       const classes: any = await Subjects.aggregate([
