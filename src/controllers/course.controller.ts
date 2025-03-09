@@ -568,11 +568,20 @@ export const getWebHomeCourses = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id }: { id?: string } = req.query;
 
+    const { page = 1, limit = 12 }: { page?: any; limit?: any } = req.query; // Default: 15 candidates per page
+
     try {
-      const obj: any = {};
+      const obj: any = {
+        status: "ACTIVE",
+      };
       if (id) {
         obj._id = new mongoose.Types.ObjectId(id);
       }
+
+      const pageNumber = parseInt(page, 10);
+      const pageSize = parseInt(limit, 10);
+      const skip = (pageNumber - 1) * pageSize;
+
       const courses = await Course.aggregate([
         {
           $lookup: {
@@ -598,13 +607,25 @@ export const getWebHomeCourses = bigPromise(
             discountedPrice: 1,
           },
         },
+        { $skip: skip },
+        { $limit: pageSize },
       ]).catch((err) => {
         console.log(err);
       });
 
+      const totalCourses: any = await Course.countDocuments({
+        status: "ACTIVE",
+      });
+
+      const resultObj: any = {
+        courses: courses,
+        totalPages: Math.ceil(totalCourses / pageSize),
+        currentPage: pageNumber,
+      };
+
       const response = sendSuccessApiResponse(
         "Courses sent Successfully!",
-        courses
+        resultObj
       );
       return res.status(200).send(response);
     } catch (error) {
