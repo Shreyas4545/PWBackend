@@ -296,7 +296,7 @@ export const login: RequestHandler = bigPromise(
 
     const userExists: any = await User.findOne(
       { email: email, isActive: true },
-      ["firstName", "lastName", "phoneNumber", "email", "password"]
+      ["firstName", "lastName", "phoneNumber", "email", "password", "role"]
     );
 
     if (userExists) {

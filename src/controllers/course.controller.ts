@@ -516,7 +516,7 @@ export const getHomeCourses = bigPromise(
         },
         {
           $addFields: {
-            numberOfLectures: { $size: "$lectures" }, // Count total tests in this series
+            numberOfLectures: { $size: { $ifNull: ["$lectures", []] } }, // Count total tests in this series
           },
         },
         {
@@ -593,7 +593,7 @@ export const getWebHomeCourses = bigPromise(
         },
         {
           $addFields: {
-            noOfStudents: { $size: "$payments" }, // Count total tests in this series
+            noOfStudents: { $size: { $ifNull: ["$payments", []] } }, // Count total tests in this series
           },
         },
         {
@@ -658,7 +658,7 @@ export const getSubjects = bigPromise(
         },
         {
           $addFields: {
-            numberOfLectures: { $size: "$lectures" }, // Count total tests in this series
+            numberOfLectures: { $size: { $ifNull: ["$lectures", []] } }, // Count total tests in this series
           },
         },
         {
@@ -843,11 +843,11 @@ export const getLectures: RequestHandler = bigPromise(
         },
         {
           $addFields: {
-            notes: { $size: "$notes" },
-            tests: { $size: "$test" },
-            dpp: { $size: "$dpp" },
-            recordedLectures: { $size: "$video" },
-            assignments: { $size: "$assignment" },
+            notes: { $size: { $ifNull: ["$notes", []] } },
+            tests: { $size: { $ifNull: ["$test", []] } },
+            dpp: { $size: { $ifNull: ["$dpp", []] } },
+            recordedLectures: { $size: { $ifNull: ["$video", []] } },
+            assignments: { $size: { $ifNull: ["$assignment", []] } },
           },
         },
         {

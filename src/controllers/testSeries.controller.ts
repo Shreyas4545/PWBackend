@@ -365,7 +365,7 @@ export const getHomeTestSeries: RequestHandler = bigPromise(
         },
         {
           $addFields: {
-            numberOfTests: { $size: "$tests" }, // Count total tests in this series
+            numberOfTests: { $size: { $ifNull: ["$tests", []] } }, // Count total tests in this series
             NoOfQuestions: { $max: "$tests.noOfQuestions" }, // Get max noOfQuestions
             TotalMarks: { $max: "$tests.totalMarks" }, // Get max totalMarks
           },
