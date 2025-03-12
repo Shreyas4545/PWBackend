@@ -403,18 +403,123 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
 
 export const getHomeCourses = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id }: { id?: string } = req.query;
+    const { id, studentId }: { id?: string; studentId?: string } = req.query;
 
     try {
       const obj: any = {};
       const obj1: any = {};
-
+      let stuId: any = "";
       if (id) {
         obj._id = new mongoose.Types.ObjectId(id);
       }
       if (id) {
         obj1.courseId = new mongoose.Types.ObjectId(id);
       }
+      if (studentId) {
+        stuId = new mongoose.Types.ObjectId(studentId);
+      }
+
+      // let courses: any = await Course.aggregate([
+      //   {
+      //     $match: obj,
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "payments", // Reference the tests collection
+      //       localField: "_id",
+      //       foreignField: "courseId",
+      //       as: "payments",
+      //     },
+      //   },
+      //   {
+      //     $set: {
+      //       isPurchased: {
+      //         $gt: [
+      //           {
+      //             $size: {
+      //               $filter: {
+      //                 input: "$payments",
+      //                 as: "payment",
+      //                 cond: { $eq: ["$$payment.studentId", studentId] },
+      //               },
+      //             },
+      //           },
+      //           0,
+      //         ],
+      //       },
+      //     },
+      //   },
+      //   ,
+      //   {
+      //     $lookup: {
+      //       from: "user",
+      //       localField: "instructor",
+      //       foreignField: "_id",
+      //       as: "instructors",
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "user",
+      //       localField: "createdBy",
+      //       foreignField: "_id",
+      //       as: "creator",
+      //     },
+      //   },
+      //   {
+      //     $unwind: {
+      //       path: "$creator",
+      //       preserveNullAndEmptyArrays: true,
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: "$_id",
+      //       title: { $first: "$title" },
+      //       isPurchased: { $first: "$isPurchased" },
+      //       courseDurations: { $first: "$courseDurations" },
+      //       createdBy: {
+      //         $first: {
+      //           $concat: ["$creator.firstName", " ", "$creator.lastName"],
+      //         },
+      //       },
+      //       instructors: {
+      //         $push: {
+      //           $map: {
+      //             input: "$instructors",
+      //             as: "instructor",
+      //             in: {
+      //               name: {
+      //                 $concat: [
+      //                   "$$instructor.firstName",
+      //                   " ",
+      //                   "$$instructor.lastName",
+      //                 ],
+      //               },
+      //               photo: "$$instructor.photo",
+      //             },
+      //           },
+      //         },
+      //       },
+      //       subtitle: { $first: "$subtitle" },
+      //       category: { $first: "$category" },
+      //       subCategory: { $first: "$subCategory" },
+      //       actualPrice: { $first: "$actualPrice" },
+      //       discountedPrice: { $first: "$discountedPrice" },
+      //       startDate: { $first: "$startDate" },
+      //       endDate: { $first: "$endDate" },
+      //       courseDescription: { $first: "$courseDescription" },
+      //       courseThumbnail: { $first: "$courseThumbnail" },
+      //       courseTrailer: { $first: "$courseTrailer" },
+      //       welcomeMsg: { $first: "$welcomeMsg" },
+      //       whatYouWillGet: { $first: "$whatYouWillGet" },
+      //       faq: { $first: "$faq" },
+      //       schedule: { $first: "$schedule" },
+      //     },
+      //   },
+      // ]).catch((err) => {
+      //   console.log(err);
+      // });
 
       let courses: any = await Course.aggregate([
         {
@@ -422,10 +527,28 @@ export const getHomeCourses = bigPromise(
         },
         {
           $lookup: {
-            from: "payments", // Reference the tests collection
+            from: "payments",
             localField: "_id",
             foreignField: "courseId",
             as: "payments",
+          },
+        },
+        {
+          $set: {
+            isPurchased: {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$payments",
+                      as: "payment",
+                      cond: { $eq: ["$$payment.studentId", stuId] },
+                    },
+                  },
+                },
+                0,
+              ],
+            },
           },
         },
         {
@@ -451,47 +574,44 @@ export const getHomeCourses = bigPromise(
           },
         },
         {
-          $group: {
-            _id: "$_id",
-            title: { $first: "$title" },
-            courseDurations: { $first: "$courseDurations" },
+          $project: {
+            _id: 1,
+            title: 1,
+            isPurchased: 1,
+            courseDurations: 1,
             createdBy: {
-              $first: {
-                $concat: ["$creator.firstName", " ", "$creator.lastName"],
-              },
+              $concat: ["$creator.firstName", " ", "$creator.lastName"],
             },
             instructors: {
-              $push: {
-                $map: {
-                  input: "$instructors",
-                  as: "instructor",
-                  in: {
-                    name: {
-                      $concat: [
-                        "$$instructor.firstName",
-                        " ",
-                        "$$instructor.lastName",
-                      ],
-                    },
-                    photo: "$$instructor.photo",
+              $map: {
+                input: "$instructors",
+                as: "instructor",
+                in: {
+                  name: {
+                    $concat: [
+                      "$$instructor.firstName",
+                      " ",
+                      "$$instructor.lastName",
+                    ],
                   },
+                  photo: "$$instructor.photo",
                 },
               },
             },
-            subtitle: { $first: "$subtitle" },
-            category: { $first: "$category" },
-            subCategory: { $first: "$subCategory" },
-            actualPrice: { $first: "$actualPrice" },
-            discountedPrice: { $first: "$discountedPrice" },
-            startDate: { $first: "$startDate" },
-            endDate: { $first: "$endDate" },
-            courseDescription: { $first: "$courseDescription" },
-            courseThumbnail: { $first: "$courseThumbnail" },
-            courseTrailer: { $first: "$courseTrailer" },
-            welcomeMsg: { $first: "$welcomeMsg" },
-            whatYouWillGet: { $first: "$whatYouWillGet" },
-            faq: { $first: "$faq" },
-            schedule: { $first: "$schedule" },
+            subtitle: 1,
+            category: 1,
+            subCategory: 1,
+            actualPrice: 1,
+            discountedPrice: 1,
+            startDate: 1,
+            endDate: 1,
+            courseDescription: 1,
+            courseThumbnail: 1,
+            courseTrailer: 1,
+            welcomeMsg: 1,
+            whatYouWillGet: 1,
+            faq: 1,
+            schedule: 1,
           },
         },
       ]).catch((err) => {
