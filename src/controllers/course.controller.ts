@@ -147,43 +147,12 @@ export const addCourse: RequestHandler = bigPromise(
 
 export const updateCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      courseThumbnail,
-      courseTrailer,
-      courseDescription,
-      schedule,
-      whatYouWillGet,
-      faq,
-      welcomeMsg,
-      congratulationsMsg,
-    }: {
-      courseThumbnail: string;
-      courseTrailer: string;
-      courseDescription: string;
-      schedule: string[];
-      whatYouWillGet: string[];
-      faq: FAQ[];
-      welcomeMsg: string;
-      congratulationsMsg: string;
-    } = req.body;
-
     const id = req.params.id as string | undefined;
-
-    const toUpdate: courseUpdateObj = {
-      courseThumbnail,
-      courseTrailer,
-      courseDescription,
-      schedule, //ritwik
-      whatYouWillGet, //ritwik
-      faq, //ritwik
-      welcomeMsg,
-      congratulationsMsg,
-    };
 
     try {
       const updatedCourse = await Course.findOneAndUpdate(
         { _id: id },
-        toUpdate,
+        { $set: req.body },
         { new: true }
       ).exec();
 
