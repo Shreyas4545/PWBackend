@@ -58,7 +58,7 @@ const errorHandlerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  err.status = err.status || { code: 500, success: false };
+  err.status = err?.status || { code: 500, success: false };
   err.isOperational = err.isOperational
     ? true
     : err.isOperational === false
@@ -89,7 +89,7 @@ const errorHandlerMiddleware = (
     sendErrorForDev(err, res);
   }
 
-  const logError = `StatusCode: ${err.status.code} | Message: ${err.message} \n${err.stack}`;
+  const logError = `StatusCode: ${err?.status?.code} | Message: ${err?.message} \n${err.stack}`;
   console.log(logError);
 };
 
