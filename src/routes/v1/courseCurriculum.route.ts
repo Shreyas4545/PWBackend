@@ -12,7 +12,7 @@ import { isLoggedIn } from "../../middlewares/authorization";
 const router = express.Router();
 
 router.route("/addCurriculum").post(isLoggedIn, addCurriculum);
-router.route("/editCurriculum").post(isLoggedIn, editCurriculum);
+router.route("/editCurriculum").post(editCurriculum);
 router.route("/editSections/:id").put(isLoggedIn, editSection);
 router.route("/editLectures/:id").put(isLoggedIn, editLecture);
 router.route("/addSubject").post(isLoggedIn, addSection);

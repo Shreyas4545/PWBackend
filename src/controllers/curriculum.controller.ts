@@ -4,6 +4,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
+import mongoose from "mongoose";
 
 export interface subjectObj {
   title: string;
@@ -107,27 +108,25 @@ export const editCurriculum: RequestHandler = bigPromise(
       } = req.body;
 
       for (let i of data) {
-        const subjectObjToStore: subjectObj = {
+        const obj: any = {
           title: i?.subjectTitle,
-          courseId: courseId,
-          status: "ACTIVE",
-          createdAt: new Date(),
         };
 
         const subject = await Subjects.findOneAndUpdate(
           { _id: i?._id },
-          { $set: { subjectTitle: i?.subjectTitle } }
-        );
+          { $set: obj },
+          { new: true }
+        ).exec();
 
         for (let j of i?.lectures) {
           const lecture = await Lectures.findByIdAndUpdate(
-            { _id: j?._id },
-            { $set: j }
+            { _id: new mongoose.Types.ObjectId(j?._id) },
+            { $set: { title: j?.lectureTitle } }
           );
         }
       }
       const response = sendSuccessApiResponse(
-        "Curriculum Added Successfully!",
+        "Curriculum Updated Successfully!",
         {}
       );
       res.status(200).send(response);
