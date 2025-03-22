@@ -6,6 +6,7 @@ import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 dotenv.config();
 
 const options = {
@@ -77,7 +78,7 @@ export const signup: RequestHandler = bigPromise(
         role: "user",
       };
 
-      if (!email || !firstName || !lastName || !password) {
+      if (!email || !firstName || !password) {
         return next(
           createCustomError("Name, Email and Password fields are required", 400)
         );
@@ -388,12 +389,12 @@ export const getUsers: RequestHandler = bigPromise(
 
 export const getStudents: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { studentId } = req.query;
+    const { studentId }: { studentId?: string } = req.query;
 
     const obj: any = {};
 
     if (studentId) {
-      obj.studentId = studentId;
+      obj._id = new mongoose.Types.ObjectId(studentId);
     }
 
     let students: Array<Record<string, any>> = [];
