@@ -53,7 +53,6 @@ export const addCurriculum: RequestHandler = bigPromise(
       const lectureData: any = [];
 
       for (let i of data) {
-        if (i._id) continue;
         const subjectObjToStore: subjectObj = {
           title: i?.subjectTitle,
           courseId: courseId,
@@ -87,6 +86,49 @@ export const addCurriculum: RequestHandler = bigPromise(
           subjectData: subjectData,
           lectureData: lectureData,
         }
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const editCurriculum: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {
+        courseId,
+        data,
+      }: {
+        courseId: string;
+        data: any;
+      } = req.body;
+
+      for (let i of data) {
+        const subjectObjToStore: subjectObj = {
+          title: i?.subjectTitle,
+          courseId: courseId,
+          status: "ACTIVE",
+          createdAt: new Date(),
+        };
+
+        const subject = await Subjects.findOneAndUpdate(
+          { _id: i?._id },
+          { $set: { subjectTitle: i?.subjectTitle } }
+        );
+
+        for (let j of i?.lectures) {
+          const lecture = await Lectures.findByIdAndUpdate(
+            { _id: j?._id },
+            { $set: j }
+          );
+        }
+      }
+      const response = sendSuccessApiResponse(
+        "Curriculum Added Successfully!",
+        {}
       );
       res.status(200).send(response);
     } catch (err) {
