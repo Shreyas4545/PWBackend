@@ -174,3 +174,54 @@ export const editLecture: RequestHandler = bigPromise(
     }
   }
 );
+
+export const addSection: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.body;
+
+      const obj: any = {
+        courseId: courseId,
+        status: "ACTIVE",
+      };
+
+      const newSub: any = await Subjects.create(obj).catch((err) => {
+        console.log(err);
+      });
+      const response = sendSuccessApiResponse(
+        "Section Added Successfully!",
+        newSub
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
+export const addLecture: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { subjectId } = req.body;
+
+      const obj: any = {
+        courseId: subjectId,
+        status: "ACTIVE",
+      };
+
+      const newLecture: any = await Lectures.create(obj).catch((err) => {
+        console.log(err);
+      });
+
+      const response = sendSuccessApiResponse(
+        "Lecture Added Successfully!",
+        newLecture
+      );
+      res.status(200).send(response);
+    } catch (err) {
+      console.log(err);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);

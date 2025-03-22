@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const subjectSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, "Please provide a title"],
   },
   courseId: {
     type: mongoose.Types.ObjectId,

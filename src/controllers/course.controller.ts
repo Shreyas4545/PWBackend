@@ -56,17 +56,6 @@ export interface ILiveClass {
   status?: string; // Whether the live class is active
 }
 
-interface courseUpdateObj {
-  courseThumbnail: string;
-  welcomeMsg: string;
-  congratulationsMsg: string;
-  courseTrailer: string;
-  courseDescription: string;
-  schedule: string[];
-  whatYouWillGet: string[];
-  faq: FAQ[];
-}
-
 export const addCourse: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
