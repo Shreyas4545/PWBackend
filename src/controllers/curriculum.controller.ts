@@ -53,6 +53,7 @@ export const addCurriculum: RequestHandler = bigPromise(
       const lectureData: any = [];
 
       for (let i of data) {
+        if (i._id) continue;
         const subjectObjToStore: subjectObj = {
           title: i?.subjectTitle,
           courseId: courseId,
