@@ -6,6 +6,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import mongoose from "mongoose";
+import test from "node:test";
 
 export interface testSeriesObj {
   title: string;
@@ -519,6 +520,15 @@ export const updateTests: RequestHandler = bigPromise(
         console.log(err);
         return next(createCustomError("Internal Server Error", 501));
       });
+
+      for (let i of req.body.testSections) {
+        await testSections
+          .findOneAndUpdate({ _id: i?._id }, { $set: i })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+
       const response = sendSuccessApiResponse(
         "Tests Updated Successfully!",
         updatedTests
@@ -624,6 +634,30 @@ export const getTestInstructions: RequestHandler = bigPromise(
       });
     } catch (error) {
       console.error("Error fetching test series data:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+export const addTestSection: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { testId }: { testId: string } = req.body;
+
+      const obj: any = {
+        testId: testId,
+      };
+
+      const testSection = await testSections.create(obj).catch((err) => {
+        console.log(err);
+      });
+
+      return res.status(200).json({
+        message: "Success",
+        data: testSection,
+      });
+    } catch (error) {
+      console.error("Error Creating Test Section Data:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   }

@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const testSectionsSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, "Please provide a title"],
   },
   negativeMarking: {
     type: Boolean,

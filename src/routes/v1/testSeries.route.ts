@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  addTestSection,
   addTestSeries,
   addTests,
   getHomeTestSeries,
@@ -26,5 +27,6 @@ router.route("/getTestSections").get(getTestSections);
 router.route("/getTestInstructions").get(getTestInstructions);
 router.route("/getHomeTestSeries").get(getHomeTestSeries);
 router.route("/getSingleTest").get(getSingleTests);
+router.route("/addTestSection").post(addTestSection);
 
 export default router;
