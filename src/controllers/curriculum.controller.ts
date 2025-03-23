@@ -113,14 +113,14 @@ export const editCurriculum: RequestHandler = bigPromise(
         };
 
         const subject = await Subjects.findOneAndUpdate(
-          { _id: i?._id },
+          { _id: i?.id },
           { $set: obj },
           { new: true }
         ).exec();
 
         for (let j of i?.lectures) {
           const lecture = await Lectures.findByIdAndUpdate(
-            { _id: new mongoose.Types.ObjectId(j?._id) },
+            { _id: new mongoose.Types.ObjectId(j?.id) },
             { $set: { title: j?.lectureTitle } }
           );
         }
