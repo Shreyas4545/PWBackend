@@ -604,6 +604,7 @@ export const getFreeVideos: RequestHandler = bigPromise(
         console.log(err);
       });
 
+      console.log(freeVideos);
       const response = sendSuccessApiResponse(
         "Free Videos Sent Successfully!",
         freeVideos

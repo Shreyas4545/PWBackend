@@ -1142,6 +1142,12 @@ export const getFreeVideos: RequestHandler = bigPromise(
           },
         },
         {
+          $unwind: {
+            path: "$subjects.lectures.video",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $group: {
             _id: null, // No grouping key, we just want a single array of videos
             videos: { $addToSet: "$subjects.lectures.video" }, // Combine all videos into one array
@@ -1156,7 +1162,7 @@ export const getFreeVideos: RequestHandler = bigPromise(
       ]);
 
       const response = sendSuccessApiResponse(
-        "Live Videos sent successfully!",
+        "Free Videos sent successfully!",
         data[0]
       );
       res.status(200).send(response);
