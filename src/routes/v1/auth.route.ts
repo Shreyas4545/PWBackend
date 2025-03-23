@@ -12,6 +12,8 @@ import {
   studentLogin,
   getStudents,
   updateStudentDetails,
+  sendOtp,
+  verifyOtp,
 } from "../../controllers/auth.controller";
 
 // import middlwares
@@ -25,6 +27,8 @@ router.route("/studentLogin").post(studentLogin);
 router.route("/logout").get(logout);
 router.route("/getUsers").get(getUsers);
 router.route("/getStudents").get(getStudents);
+router.route("/sendOtp").post(sendOtp);
+router.route("/verifyOtp").post(verifyOtp);
 router.route("/updateStudentDetails/:id").put(updateStudentDetails);
 
 export default router;

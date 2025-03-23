@@ -2,11 +2,14 @@ import User from "../models/User";
 import Student from "../models/student.model";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import bigPromise from "../middlewares/bigPromise";
+import bcrypt from "bcryptjs";
 import { sendSuccessApiResponse } from "../middlewares/successApiResponse";
 import { createCustomError } from "../errors/customAPIError";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { sendMail } from "../util/sendMail";
+import OTP from "../models/otp.model";
 dotenv.config();
 
 const options = {
@@ -29,7 +32,7 @@ interface studentUpdateObj {
   firstName?: string;
   lastName?: string;
   email?: string;
-  password?: string;
+  password?: string | any;
   phoneNumber?: number;
   gender?: string;
   role?: string;
@@ -445,7 +448,7 @@ export const updateStudentDetails: RequestHandler = bigPromise(
         updateObj.email = email;
       }
       if (password) {
-        updateObj.password = password;
+        updateObj.password = bcrypt.hash(password, 10);
       }
       if (gender) {
         updateObj.gender = gender;
@@ -470,6 +473,7 @@ export const updateStudentDetails: RequestHandler = bigPromise(
       res.status(200).send(response);
     } catch (error) {
       console.log(error);
+      return next(createCustomError("Internal Server Error", 501));
     }
   }
 );
@@ -484,4 +488,58 @@ export const logout: RequestHandler = bigPromise(async (req, res, next) => {
     success: true,
     message: "Logged Out Successfully",
   });
+});
+
+export const sendOtp: RequestHandler = bigPromise(async (req, res, next) => {
+  try {
+    const { email }: { email: string } = req.body;
+    const randomSixDigit = Math.floor(100000 + Math.random() * 900000);
+
+    await sendMail(
+      "shreyasjakati66@gmail.com",
+      email,
+      "OTP For Password Reset",
+      `OTP - ${randomSixDigit}`
+    );
+
+    const otpObj: any = {
+      email: email,
+      otp: randomSixDigit,
+    };
+
+    await OTP.updateOne(
+      { email: email },
+      { $set: otpObj },
+      { upsert: true }
+    ).catch((err: any) => {
+      console.log(err);
+    });
+    const response = sendSuccessApiResponse("OTP Sent Successfully!", {});
+    res.status(200).send(response);
+  } catch (err) {
+    console.log(err);
+    return next(createCustomError("Internal Server Error", 501));
+  }
+});
+
+export const verifyOtp: RequestHandler = bigPromise(async (req, res, next) => {
+  try {
+    const { email, otp }: { email: string; otp: number } = req.body;
+
+    const otpObj: any = await OTP.findOne({ email: email }).catch(
+      (err: any) => {
+        console.log(err);
+      }
+    );
+
+    if (otpObj?.otp != otp) {
+      return next(createCustomError("OTP Not Correct", 403));
+    }
+
+    const response = sendSuccessApiResponse("OTP Verified Successfully!", {});
+    res.status(200).send(response);
+  } catch (err) {
+    console.log(err);
+    return next(createCustomError("Internal Server Error", 501));
+  }
 });
