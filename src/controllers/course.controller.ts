@@ -324,14 +324,14 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             subjects: {
               $push: {
                 subjectTitle: "$subjects.title",
-                id: "$subjects._id",
+                _id: "$subjects._id",
                 lectures: {
                   $map: {
                     input: "$subjects.lectures",
                     as: "lecture",
                     in: {
                       lectureTitle: "$$lecture.title",
-                      id: "$$lecture._id",
+                      _id: "$$lecture._id",
                       notes: "$$lecture.notes",
                       dpp: "$$lecture.dpp",
                       description: "$$lecture.description",
