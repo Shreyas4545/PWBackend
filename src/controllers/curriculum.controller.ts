@@ -247,7 +247,7 @@ export const addLecture: RequestHandler = bigPromise(
       const { subjectId } = req.body;
 
       const obj: any = {
-        courseId: subjectId,
+        subjectId: subjectId,
         status: "ACTIVE",
       };
 
