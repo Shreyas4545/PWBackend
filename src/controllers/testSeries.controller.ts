@@ -511,6 +511,7 @@ export const updateTests: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
+      const { testSections }: { testSections?: any } = req.body;
 
       const updatedTests = await Tests.findOneAndUpdate(
         { _id: id },
@@ -521,12 +522,15 @@ export const updateTests: RequestHandler = bigPromise(
         return next(createCustomError("Internal Server Error", 501));
       });
 
-      for (let i of req.body?.testSections) {
-        await testSections
-          .findOneAndUpdate({ _id: i?._id }, { $set: i })
-          .catch((err) => {
-            console.log(err);
-          });
+      console.log(req.body);
+      if (testSections?.length > 0) {
+        for (let i of testSections) {
+          await testSections
+            .findOneAndUpdate({ _id: i?._id }, { $set: i })
+            .catch((err: any) => {
+              console.log(err);
+            });
+        }
       }
 
       const response = sendSuccessApiResponse(
