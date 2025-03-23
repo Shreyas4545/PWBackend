@@ -521,7 +521,7 @@ export const updateTests: RequestHandler = bigPromise(
         return next(createCustomError("Internal Server Error", 501));
       });
 
-      for (let i of req.body.testSections) {
+      for (let i of req.body?.testSections) {
         await testSections
           .findOneAndUpdate({ _id: i?._id }, { $set: i })
           .catch((err) => {
