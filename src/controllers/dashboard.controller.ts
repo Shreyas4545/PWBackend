@@ -599,9 +599,10 @@ export const addFreeVideos: RequestHandler = bigPromise(
 export const getFreeVideos: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId }: { userId?: string } = req.query;
+      const { userId, type }: { userId?: string; type?: string } = req.query;
       const getObj: any = {};
       if (userId) getObj.createdBy = userId;
+      if (type) getObj.type = type;
 
       const freeVideos = await FreeVideos.find(getObj).catch((err) => {
         console.log(err);
