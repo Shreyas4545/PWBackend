@@ -10,6 +10,9 @@ const freeVideoSchema = new mongoose.Schema({
   thumbnailLink: {
     type: String,
   },
+  type: {
+    type: String,
+  },
   status: {
     type: String,
     default: "ACTIVE",

@@ -562,17 +562,20 @@ export const addFreeVideos: RequestHandler = bigPromise(
       thumbnailLink,
       videoLink,
       createdBy,
+      type,
     }: {
       description: string;
       thumbnailLink: string;
       videoLink: string;
       createdBy: string;
+      type: string;
     } = req.body;
 
     const addObj: any = {
       createdBy,
       description,
       thumbnailLink,
+      type,
       videoLink,
       status: "ACTIVE",
       createdAt: new Date(),
