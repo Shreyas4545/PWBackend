@@ -262,6 +262,44 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
           },
         },
         {
+          $addFields: {
+            instructors: {
+              $map: {
+                input: "$instructor",
+                as: "instructorId",
+                in: {
+                  _id: "$$instructorId",
+                  fullName: {
+                    $let: {
+                      vars: {
+                        matchedInstructor: {
+                          $arrayElemAt: [
+                            {
+                              $filter: {
+                                input: "$instructors",
+                                as: "user",
+                                cond: { $eq: ["$$user._id", "$$instructorId"] },
+                              },
+                            },
+                            0,
+                          ],
+                        },
+                      },
+                      in: {
+                        $concat: [
+                          { $ifNull: ["$$matchedInstructor.firstName", ""] },
+                          " ",
+                          { $ifNull: ["$$matchedInstructor.lastName", ""] },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
           $lookup: {
             from: "user",
             localField: "createdBy",
@@ -305,22 +343,20 @@ export const getCoursesWithSubjectsAndLectures = bigPromise(
             courseTrailer: { $first: "$courseTrailer" },
             congratulationsMsg: { $first: "$congratulationsMsg" },
             welcomeMsg: { $first: "$welcomeMsg" },
+
             courseId: { $first: "$courseId" },
-            instructors: {
-              $push: {
-                $map: {
-                  input: "$instructors",
-                  as: "instructor",
-                  in: {
-                    $concat: [
-                      "$$instructor.firstName",
-                      " ",
-                      "$$instructor.lastName",
-                    ],
-                  }, // Extract only the username field
-                },
-              },
-            },
+            instructors: { $first: "$instructors" },
+            //   $push: {
+            //     _id: "$instructors._id",
+            //     fullName: {
+            //       $concat: [
+            //         { $ifNull: ["$instructors.firstName", ""] },
+            //         " ",
+            //         { $ifNull: ["$instructors.lastName", ""] },
+            //       ],
+            //     },
+            //   },
+            // },
             subjects: {
               $push: {
                 subjectTitle: "$subjects.title",
@@ -687,6 +723,8 @@ export const getWebHomeCourses = bigPromise(
             endDate: 1,
             actualPrice: 1,
             courseDescription: 1,
+            category: 1,
+            subCategory: 1,
             courseThumbnail: 1,
             discountedPrice: 1,
           },

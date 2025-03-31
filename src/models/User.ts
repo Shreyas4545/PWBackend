@@ -59,6 +59,15 @@ const userSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
+  title: {
+    type: String,
+  },
+  biography: {
+    type: String,
+  },
+  userName: {
+    type: String,
+  },
   gender: {
     type: String,
     // required: [true, "Please provide gender"],

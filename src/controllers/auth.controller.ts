@@ -324,6 +324,34 @@ export const login: RequestHandler = bigPromise(
   }
 );
 
+export const updateUserDetails: RequestHandler = bigPromise(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id }: { id?: string } = req.params;
+
+      let obj: any = { ...req.body };
+
+      if (req.body.password) {
+        obj.password = await bcrypt.hash(req.body.password, 10);
+      }
+
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
+        { $set: obj }
+      ).catch((err) => {
+        console.log(err);
+      });
+      return res
+        .status(200)
+        .send(
+          sendSuccessApiResponse("User Updated Successfully!", updatedUser)
+        );
+    } catch (err) {
+      return next(createCustomError("You're not registered in our app", 400));
+    }
+  }
+);
+
 export const studentLogin: RequestHandler = bigPromise(
   async (req: Request, res: Response, next: NextFunction) => {
     const {
