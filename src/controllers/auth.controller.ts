@@ -506,6 +506,41 @@ export const updateStudentDetails: RequestHandler = bigPromise(
   }
 );
 
+export const updatePassword: RequestHandler = bigPromise(
+  async (req, res, next) => {
+    try {
+      const {
+        email,
+        password,
+      }: {
+        email: string;
+        password: string;
+      } = req.body;
+
+      let updateObj: studentUpdateObj = {};
+
+      if (password) {
+        updateObj.password = await bcrypt.hash(password, 10);
+      }
+
+      const data = await Student.findOneAndUpdate(
+        { email: email },
+        { $set: updateObj },
+        { new: true }
+      );
+
+      const response = sendSuccessApiResponse(
+        "Student Password Updated Successfully!",
+        data
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      console.log(error);
+      return next(createCustomError("Internal Server Error", 501));
+    }
+  }
+);
+
 export const logout: RequestHandler = bigPromise(async (req, res, next) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),

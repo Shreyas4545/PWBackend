@@ -15,6 +15,7 @@ import {
   sendOtp,
   verifyOtp,
   updateUserDetails,
+  updatePassword,
 } from "../../controllers/auth.controller";
 
 // import middlwares
@@ -32,5 +33,6 @@ router.route("/getStudents").get(getStudents);
 router.route("/sendOtp").post(sendOtp);
 router.route("/verifyOtp").post(verifyOtp);
 router.route("/updateStudentDetails/:id").put(updateStudentDetails);
+router.route("/updatePassword").post(updatePassword);
 
 export default router;
